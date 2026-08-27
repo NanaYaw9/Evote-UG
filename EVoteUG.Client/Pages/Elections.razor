@@ -1,0 +1,38 @@
+@page "/elections"
+@inject EVoteUG.Client.Services.ElectionService ElectionService
+@using EVoteUG.Shared.Models
+
+<PageTitle>Elections</PageTitle>
+
+<h1>Elections</h1>
+
+@if (elections == null)
+{
+    <p>Loading...</p>
+}
+else if (elections.Count == 0)
+{
+    <p>No elections found.</p>
+}
+else
+{
+    <ul>
+        @foreach (var election in elections)
+        {
+            <li>
+                <strong>@election.Title</strong> — @election.Description
+                <br />
+                <small>@election.StartDate.ToShortDateString() to @election.EndDate.ToShortDateString()</small>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Election>? elections;
+
+    protected override async Task OnInitializedAsync()
+    {
+        elections = await ElectionService.GetElectionsAsync();
+    }
+}
