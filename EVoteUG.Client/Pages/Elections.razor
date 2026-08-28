@@ -20,7 +20,9 @@ else
         @foreach (var election in elections)
         {
             <li>
-                <strong>@election.Title</strong> — @election.Description
+                <a href="/elections/@election.Id">
+                    <strong>@election.Title</strong>
+                </a> — @election.Description
                 <br />
                 <small>@election.StartDate.ToShortDateString() to @election.EndDate.ToShortDateString()</small>
             </li>

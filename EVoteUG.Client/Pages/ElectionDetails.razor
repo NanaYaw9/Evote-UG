@@ -1,0 +1,58 @@
+@page "/elections/{ElectionId:int}"
+@inject EVoteUG.Client.Services.PositionService PositionService
+@using EVoteUG.Shared.Models
+
+<PageTitle>Election Details</PageTitle>
+
+<h1>Positions</h1>
+
+@if (positions == null)
+{
+    <p>Loading...</p>
+}
+else if (positions.Count == 0)
+{
+    <p>No positions found for this election.</p>
+}
+else
+{
+    @foreach (var position in positions)
+    {
+        <h3>@position.Title</h3>
+
+        @if (position.Candidates == null || position.Candidates.Count == 0)
+        {
+            <p><em>No candidates yet.</em></p>
+        }
+        else
+        {
+            <ul>
+                @foreach (var candidate in position.Candidates)
+                {
+                    <li>@candidate.FullName — @candidate.Bio</li>
+                }
+            </ul>
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public int ElectionId { get; set; }
+
+    private List<Position>? positions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var basicPositions = await PositionService.GetPositionsByElectionAsync(ElectionId);
+
+        // For each position, fetch the full details including its candidates
+        positions = new List<Position>();
+        foreach (var pos in basicPositions)
+        {
+            var fullPosition = await PositionService.GetPositionWithCandidatesAsync(pos.Id);
+            if (fullPosition != null)
+                positions.Add(fullPosition);
+        }
+    }
+}

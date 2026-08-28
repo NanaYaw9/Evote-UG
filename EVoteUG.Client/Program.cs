@@ -13,5 +13,6 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped<ElectionService>();
+builder.Services.AddScoped<PositionService>();
 
 await builder.Build().RunAsync();
