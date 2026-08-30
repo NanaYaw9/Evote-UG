@@ -32,6 +32,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    // Automatically apply EF Core migrations to SQL Server in Development
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<EVoteUGDbContext>();
+    dbContext.Database.Migrate();
 }
 
 app.UseCors("AllowBlazorClient");
