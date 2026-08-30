@@ -10,6 +10,7 @@ public class Admin
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public UserRole Role { get; set; } = UserRole.SuperAdmin;
+    public bool MustChangePassword { get; set; } = false;
     public bool IsActive { get; set; } = true;
     public DateTime? LastLogin { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

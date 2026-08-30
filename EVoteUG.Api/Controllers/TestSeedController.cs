@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using EVoteUG.Api.Data;
+using EVoteUG.Infrastructure.Data;
 using EVoteUG.Shared.Models;
 
 namespace EVoteUG.Api.Controllers;

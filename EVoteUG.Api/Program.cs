@@ -1,4 +1,4 @@
-using EVoteUG.Api.Data;
+using EVoteUG.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,10 +33,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    // Automatically apply EF Core migrations to SQL Server in Development
+    // Automatically apply EF Core migrations and seed data in Development
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<EVoteUGDbContext>();
     dbContext.Database.Migrate();
+    DbInitializer.SeedAsync(dbContext, app.Configuration, app.Logger).GetAwaiter().GetResult();
 }
 
 app.UseCors("AllowBlazorClient");
