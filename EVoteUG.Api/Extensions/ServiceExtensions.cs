@@ -9,6 +9,10 @@ public static class ServiceExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAuditService, AuditService>();
+        services.AddScoped<IElectionService, ElectionService>();
+        services.AddScoped<IPositionService, PositionService>();
+        services.AddScoped<ICandidateService, CandidateService>();
         services.AddSingleton<LocalFileStorageService>();
 
         return services;

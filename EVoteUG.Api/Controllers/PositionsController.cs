@@ -1,7 +1,9 @@
+using System.Security.Claims;
+using EVoteUG.Core.DTOs.Position;
+using EVoteUG.Core.Interfaces;
+using EVoteUG.Shared.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using EVoteUG.Infrastructure.Data;
-using EVoteUG.Shared.Models;
 
 namespace EVoteUG.Api.Controllers;
 
@@ -9,70 +11,95 @@ namespace EVoteUG.Api.Controllers;
 [Route("api/[controller]")]
 public class PositionsController : ControllerBase
 {
-    private readonly EVoteUGDbContext _context;
+    private readonly IPositionService _positionService;
 
-    public PositionsController(EVoteUGDbContext context)
+    public PositionsController(IPositionService positionService)
     {
-        _context = context;
+        _positionService = positionService;
     }
 
-    // GET: api/positions?electionId=1
-    [HttpGet]
-    public async Task<ActionResult<List<Position>>> GetPositions([FromQuery] int? electionId)
+    /// <summary>
+    /// Retrieve positions for a specific election.
+    /// </summary>
+    [HttpGet("by-election/{electionId}")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<List<PositionResponseDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPositionsByElection(int electionId)
     {
-        var query = _context.Positions.AsQueryable();
-
-        if (electionId.HasValue)
-            query = query.Where(p => p.ElectionId == electionId.Value);
-
-        var positions = await query.ToListAsync();
-        return Ok(positions);
+        var result = await _positionService.GetPositionsByElectionAsync(electionId);
+        return Ok(result);
     }
 
-    // GET: api/positions/5
+    /// <summary>
+    /// Retrieve position by ID.
+    /// </summary>
     [HttpGet("{id}")]
-    public async Task<ActionResult<Position>> GetPosition(int id)
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<PositionResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PositionResponseDto>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPositionById(int id)
     {
-        var position = await _context.Positions
-            .Include(p => p.Candidates)
-            .FirstOrDefaultAsync(p => p.Id == id);
+        var result = await _positionService.GetPositionByIdAsync(id);
+        if (!result.Success)
+            return NotFound(result);
 
-        if (position == null)
-            return NotFound();
-
-        return Ok(position);
+        return Ok(result);
     }
 
-    // POST: api/positions
+    /// <summary>
+    /// Create a new contestable position for an election.
+    /// </summary>
     [HttpPost]
-    public async Task<ActionResult<Position>> CreatePosition(Position position)
+    [Authorize(Policy = "RequireAdmin")]
+    [ProducesResponseType(typeof(ApiResponse<PositionResponseDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<PositionResponseDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreatePosition([FromBody] CreatePositionRequestDto request)
     {
-        _context.Positions.Add(position);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetPosition), new { id = position.Id }, position);
+        var adminId = GetAdminId();
+        var result = await _positionService.CreatePositionAsync(request, adminId);
+        if (!result.Success)
+            return BadRequest(result);
+
+        return CreatedAtAction(nameof(GetPositionById), new { id = result.Data!.Id }, result);
     }
 
-    // PUT: api/positions/5
-[HttpPut("{id}")]
-public async Task<IActionResult> UpdatePosition(int id, Position position)
-{
-    if (id != position.Id)
-        return BadRequest("ID mismatch.");
-
-    _context.Entry(position).State = EntityState.Modified;
-
-    try
+    /// <summary>
+    /// Update position metadata.
+    /// </summary>
+    [HttpPut("{id}")]
+    [Authorize(Policy = "RequireAdmin")]
+    [ProducesResponseType(typeof(ApiResponse<PositionResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PositionResponseDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdatePosition(int id, [FromBody] UpdatePositionRequestDto request)
     {
-        await _context.SaveChangesAsync();
-    }
-    catch (DbUpdateConcurrencyException)
-    {
-        var exists = await _context.Positions.AnyAsync(p => p.Id == id);
-        if (!exists)
-            return NotFound();
-        throw;
+        var adminId = GetAdminId();
+        var result = await _positionService.UpdatePositionAsync(id, request, adminId);
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
-    return NoContent();
-}
+    /// <summary>
+    /// Delete position.
+    /// </summary>
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "RequireAdmin")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeletePosition(int id)
+    {
+        var adminId = GetAdminId();
+        var result = await _positionService.DeletePositionAsync(id, adminId);
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    private int GetAdminId()
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(claim, out var id) ? id : 0;
+    }
 }
