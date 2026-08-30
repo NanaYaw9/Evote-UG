@@ -13,6 +13,7 @@ public static class ServiceExtensions
         services.AddScoped<IElectionService, ElectionService>();
         services.AddScoped<IPositionService, PositionService>();
         services.AddScoped<ICandidateService, CandidateService>();
+        services.AddScoped<IVotingService, VotingService>();
         services.AddSingleton<LocalFileStorageService>();
 
         return services;
