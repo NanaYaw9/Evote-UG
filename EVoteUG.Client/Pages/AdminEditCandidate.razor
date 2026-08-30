@@ -1,0 +1,63 @@
+@page "/admin/candidates/edit/{CandidateId:int}"
+@inject EVoteUG.Client.Services.CandidateService CandidateService
+@using EVoteUG.Shared.Models
+
+<PageTitle>Edit Candidate</PageTitle>
+
+<h1>Edit Candidate</h1>
+
+@if (candidate == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="candidate" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label>Full Name:</label>
+            <InputText @bind-Value="candidate.FullName" />
+        </div>
+
+        <div>
+            <label>Bio:</label>
+            <InputTextArea @bind-Value="candidate.Bio" />
+        </div>
+
+        <div>
+            <label>Photo URL:</label>
+            <InputText @bind-Value="candidate.PhotoUrl" />
+        </div>
+
+        <br />
+        <button type="submit">Save Changes</button>
+    </EditForm>
+}
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <p>@resultMessage</p>
+}
+
+@code {
+    [Parameter]
+    public int CandidateId { get; set; }
+
+    private Candidate? candidate;
+    private string? resultMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        candidate = await CandidateService.GetCandidateAsync(CandidateId);
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (candidate == null) return;
+
+        var result = await CandidateService.UpdateCandidateAsync(candidate);
+        resultMessage = result.Message;
+    }
+}

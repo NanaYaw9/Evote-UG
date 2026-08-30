@@ -1,0 +1,63 @@
+@page "/admin/elections/create"
+@inject EVoteUG.Client.Services.ElectionService ElectionService
+@using EVoteUG.Shared.Models
+
+<PageTitle>Create Election</PageTitle>
+
+<h1>Create New Election</h1>
+
+<EditForm Model="newElection" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Title:</label>
+        <InputText @bind-Value="newElection.Title" />
+    </div>
+
+    <div>
+        <label>Description:</label>
+        <InputTextArea @bind-Value="newElection.Description" />
+    </div>
+
+    <div>
+        <label>Start Date:</label>
+        <InputDate @bind-Value="newElection.StartDate" />
+    </div>
+
+    <div>
+        <label>End Date:</label>
+        <InputDate @bind-Value="newElection.EndDate" />
+    </div>
+
+    <div>
+        <label>
+            <InputCheckbox @bind-Value="newElection.IsActive" />
+            Active
+        </label>
+    </div>
+
+    <br />
+    <button type="submit">Create Election</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <p>@resultMessage</p>
+}
+
+@code {
+    private Election newElection = new();
+    private string? resultMessage;
+
+    private async Task HandleSubmit()
+    {
+        var result = await ElectionService.CreateElectionAsync(newElection);
+        resultMessage = result.Message;
+
+        if (result.Success)
+        {
+            newElection = new(); // reset form
+        }
+    }
+}

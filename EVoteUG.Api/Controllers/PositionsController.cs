@@ -51,4 +51,28 @@ public class PositionsController : ControllerBase
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetPosition), new { id = position.Id }, position);
     }
+
+    // PUT: api/positions/5
+[HttpPut("{id}")]
+public async Task<IActionResult> UpdatePosition(int id, Position position)
+{
+    if (id != position.Id)
+        return BadRequest("ID mismatch.");
+
+    _context.Entry(position).State = EntityState.Modified;
+
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException)
+    {
+        var exists = await _context.Positions.AnyAsync(p => p.Id == id);
+        if (!exists)
+            return NotFound();
+        throw;
+    }
+
+    return NoContent();
+}
 }

@@ -1,0 +1,53 @@
+@page "/admin/positions/edit/{PositionId:int}"
+@inject EVoteUG.Client.Services.PositionService PositionService
+@using EVoteUG.Shared.Models
+
+<PageTitle>Edit Position</PageTitle>
+
+<h1>Edit Position</h1>
+
+@if (position == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="position" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label>Position Title:</label>
+            <InputText @bind-Value="position.Title" />
+        </div>
+
+        <br />
+        <button type="submit">Save Changes</button>
+    </EditForm>
+}
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <p>@resultMessage</p>
+}
+
+@code {
+    [Parameter]
+    public int PositionId { get; set; }
+
+    private Position? position;
+    private string? resultMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        position = await PositionService.GetPositionWithCandidatesAsync(PositionId);
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (position == null) return;
+
+        var result = await PositionService.UpdatePositionAsync(position);
+        resultMessage = result.Message;
+    }
+}

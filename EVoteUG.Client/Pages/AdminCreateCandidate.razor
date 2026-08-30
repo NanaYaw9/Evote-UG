@@ -1,0 +1,103 @@
+@page "/admin/candidates/create"
+@inject EVoteUG.Client.Services.CandidateService CandidateService
+@inject EVoteUG.Client.Services.PositionService PositionService
+@inject EVoteUG.Client.Services.ElectionService ElectionService
+@using EVoteUG.Shared.Models
+
+<PageTitle>Create Candidate</PageTitle>
+
+<h1>Create New Candidate</h1>
+
+@if (elections == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div>
+        <label>Election:</label>
+        <select @onchange="OnElectionChanged">
+            <option value="0">-- Select an Election --</option>
+            @foreach (var election in elections)
+            {
+                <option value="@election.Id">@election.Title</option>
+            }
+        </select>
+    </div>
+
+    @if (positions != null && positions.Count > 0)
+    {
+        <EditForm Model="newCandidate" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div>
+                <label>Position:</label>
+                <InputSelect @bind-Value="newCandidate.PositionId">
+                    <option value="0">-- Select a Position --</option>
+                    @foreach (var position in positions)
+                    {
+                        <option value="@position.Id">@position.Title</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div>
+                <label>Full Name:</label>
+                <InputText @bind-Value="newCandidate.FullName" />
+            </div>
+
+            <div>
+                <label>Bio:</label>
+                <InputTextArea @bind-Value="newCandidate.Bio" />
+            </div>
+
+            <div>
+                <label>Photo URL:</label>
+                <InputText @bind-Value="newCandidate.PhotoUrl" />
+            </div>
+
+            <br />
+            <button type="submit">Create Candidate</button>
+        </EditForm>
+    }
+    else if (selectedElectionId != 0)
+    {
+        <p><em>No positions found for this election. Create one first.</em></p>
+    }
+}
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <p>@resultMessage</p>
+}
+
+@code {
+    private Candidate newCandidate = new();
+    private List<Election>? elections;
+    private List<Position>? positions;
+    private int selectedElectionId = 0;
+    private string? resultMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        elections = await ElectionService.GetElectionsAsync();
+    }
+
+    private async Task OnElectionChanged(ChangeEventArgs e)
+    {
+        selectedElectionId = int.Parse(e.Value?.ToString() ?? "0");
+        positions = await PositionService.GetPositionsByElectionAsync(selectedElectionId);
+    }
+
+    private async Task HandleSubmit()
+    {
+        var result = await CandidateService.CreateCandidateAsync(newCandidate);
+        resultMessage = result.Message;
+
+        if (result.Success)
+        {
+            newCandidate = new();
+        }
+    }
+}

@@ -1,0 +1,66 @@
+@page "/admin/positions/create"
+@inject EVoteUG.Client.Services.PositionService PositionService
+@inject EVoteUG.Client.Services.ElectionService ElectionService
+@using EVoteUG.Shared.Models
+
+<PageTitle>Create Position</PageTitle>
+
+<h1>Create New Position</h1>
+
+@if (elections == null)
+{
+    <p>Loading elections...</p>
+}
+else
+{
+    <EditForm Model="newPosition" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label>Election:</label>
+            <InputSelect @bind-Value="newPosition.ElectionId">
+                <option value="0">-- Select an Election --</option>
+                @foreach (var election in elections)
+                {
+                    <option value="@election.Id">@election.Title</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div>
+            <label>Position Title:</label>
+            <InputText @bind-Value="newPosition.Title" />
+        </div>
+
+        <br />
+        <button type="submit">Create Position</button>
+    </EditForm>
+}
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <p>@resultMessage</p>
+}
+
+@code {
+    private Position newPosition = new();
+    private List<Election>? elections;
+    private string? resultMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        elections = await ElectionService.GetElectionsAsync();
+    }
+
+    private async Task HandleSubmit()
+    {
+        var result = await PositionService.CreatePositionAsync(newPosition);
+        resultMessage = result.Message;
+
+        if (result.Success)
+        {
+            newPosition = new();
+        }
+    }
+}
