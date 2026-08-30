@@ -1,5 +1,6 @@
 @page "/elections/{ElectionId:int}"
 @inject EVoteUG.Client.Services.PositionService PositionService
+@inject EVoteUG.Client.Services.VoteService VoteService
 @using EVoteUG.Shared.Models
 
 <PageTitle>Election Details</PageTitle>
@@ -26,13 +27,27 @@ else
         }
         else
         {
-            <ul>
-                @foreach (var candidate in position.Candidates)
-                {
-                    <li>@candidate.FullName — @candidate.Bio</li>
-                }
-            </ul>
+            @foreach (var candidate in position.Candidates)
+            {
+                <div>
+                    <label>
+                        <input type="radio"
+                               name="position-@position.Id"
+                               value="@candidate.Id"
+                               @onchange="() => SelectCandidate(position.Id, candidate.Id)" />
+                        @candidate.FullName — @candidate.Bio
+                    </label>
+                </div>
+            }
         }
+    }
+
+    <br />
+    <button @onclick="SubmitVotes">Submit My Votes</button>
+
+    @if (!string.IsNullOrEmpty(resultMessage))
+    {
+        <p>@resultMessage</p>
     }
 }
 
@@ -41,12 +56,16 @@ else
     public int ElectionId { get; set; }
 
     private List<Position>? positions;
+    private Dictionary<int, int> selections = new();
+    private string? resultMessage;
+
+    // TEMPORARY: hardcoded until real login exists
+    private const int CurrentStudentId = 1;
 
     protected override async Task OnInitializedAsync()
     {
         var basicPositions = await PositionService.GetPositionsByElectionAsync(ElectionId);
 
-        // For each position, fetch the full details including its candidates
         positions = new List<Position>();
         foreach (var pos in basicPositions)
         {
@@ -54,5 +73,35 @@ else
             if (fullPosition != null)
                 positions.Add(fullPosition);
         }
+    }
+
+    private void SelectCandidate(int positionId, int candidateId)
+    {
+        selections[positionId] = candidateId;
+    }
+
+    private async Task SubmitVotes()
+    {
+        resultMessage = "Submitting...";
+
+        foreach (var selection in selections)
+        {
+            var vote = new Vote
+            {
+                StudentId = CurrentStudentId,
+                PositionId = selection.Key,
+                CandidateId = selection.Value
+            };
+
+            var result = await VoteService.CastVoteAsync(vote);
+
+            if (!result.Success)
+            {
+                resultMessage = $"Error: {result.Message}";
+                return;
+            }
+        }
+
+        resultMessage = "All votes submitted successfully!";
     }
 }
