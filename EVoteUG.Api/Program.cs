@@ -1,29 +1,39 @@
+using EVoteUG.Api.Extensions;
 using EVoteUG.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 1. Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
     {
-        policy.WithOrigins("http://localhost:5043")
+        policy.WithOrigins("http://localhost:5043", "https://localhost:7001")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
 });
 
+// 2. Configure Database Context (EF Core + SQL Server)
 builder.Services.AddDbContext<EVoteUGDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add services to the container.
+// 3. Configure JWT Authentication & Authorization
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
+// 4. Configure Application Services
+builder.Services.AddApplicationServices();
+
+// 5. Add Controllers
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// 6. Configure Swagger with JWT Bearer UI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerWithJwtAuth();
 
 var app = builder.Build();
 
@@ -31,7 +41,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Vote UG API v1");
+    });
 
     // Automatically apply EF Core migrations and seed data in Development
     using var scope = app.Services.CreateScope();
@@ -44,31 +57,9 @@ app.UseCors("AllowBlazorClient");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
