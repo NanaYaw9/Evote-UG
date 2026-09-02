@@ -8,6 +8,14 @@ public class LoginRequest
     public string Password { get; set; } = string.Empty;
 }
 
+public class RegisterRequest
+{
+    public string StudentId { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+}
+
 public class StudentService
 {
     private readonly HttpClient _http;
@@ -33,4 +41,19 @@ public class StudentService
             return (false, errorText, null);
         }
     }
+
+    public async Task<(bool Success, string Message)> RegisterAsync(RegisterRequest request)
+{
+    var response = await _http.PostAsJsonAsync("api/students/register", request);
+
+    if (response.IsSuccessStatusCode)
+    {
+        return (true, "Registration successful! You can now log in.");
+    }
+    else
+    {
+        var errorText = await response.Content.ReadAsStringAsync();
+        return (false, errorText);
+    }
+}
 }

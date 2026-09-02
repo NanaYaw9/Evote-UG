@@ -1,0 +1,62 @@
+@page "/register"
+@inject EVoteUG.Client.Services.StudentService StudentService
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
+
+<PageTitle>Register</PageTitle>
+
+<h1>Student Registration</h1>
+
+<div>
+    <label>Student ID:</label>
+    <input @bind="studentId" />
+</div>
+
+<div>
+    <label>Full Name:</label>
+    <input @bind="fullName" />
+</div>
+
+<div>
+    <label>Email:</label>
+    <input type="email" @bind="email" />
+</div>
+
+<div>
+    <label>Password:</label>
+    <input type="password" @bind="password" />
+</div>
+
+<br />
+<button @onclick="HandleRegister">Register</button>
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <p>@resultMessage</p>
+}
+
+@code {
+    private string studentId = string.Empty;
+    private string fullName = string.Empty;
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string? resultMessage;
+
+    private async Task HandleRegister()
+    {
+        var request = new EVoteUG.Client.Services.RegisterRequest
+        {
+            StudentId = studentId,
+            FullName = fullName,
+            Email = email,
+            Password = password
+        };
+
+        var result = await StudentService.RegisterAsync(request);
+        resultMessage = result.Message;
+
+        if (result.Success)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+}
