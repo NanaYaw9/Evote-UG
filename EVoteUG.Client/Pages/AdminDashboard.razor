@@ -26,12 +26,13 @@ else if (elections.Count == 0)
 else
 {
     @foreach (var election in elections)
-    {
-        <div>
-            <strong>@election.Title</strong>
-            — <a href="/elections/@election.Id">View</a>
-        </div>
-    }
+{
+    <div>
+        <strong>@election.Title</strong>
+        — <a href="/elections/@election.Id">View</a>
+        — <a href="/elections/@election.Id/results">Results</a>
+    </div>
+}
 }
 
 @code {

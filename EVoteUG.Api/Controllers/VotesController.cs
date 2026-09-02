@@ -51,19 +51,20 @@ public class VotesController : ControllerBase
     }
 
     // GET: api/votes/results/{positionId}
-    [HttpGet("results/{positionId}")]
-    public async Task<ActionResult> GetResults(int positionId)
-    {
-        var results = await _context.Votes
-            .Where(v => v.PositionId == positionId)
-            .GroupBy(v => v.CandidateId)
-            .Select(g => new
-            {
-                CandidateId = g.Key,
-                VoteCount = g.Count()
-            })
-            .ToListAsync();
+[HttpGet("results/{positionId}")]
+public async Task<ActionResult> GetResults(int positionId)
+{
+    var results = await _context.Candidates
+        .Where(c => c.PositionId == positionId)
+        .Select(c => new
+        {
+            CandidateId = c.Id,
+            CandidateName = c.FullName,
+            VoteCount = _context.Votes.Count(v => v.CandidateId == c.Id)
+        })
+        .OrderByDescending(r => r.VoteCount)
+        .ToListAsync();
 
-        return Ok(results);
-    }
+    return Ok(results);
+}
 }
