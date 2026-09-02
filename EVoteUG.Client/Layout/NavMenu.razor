@@ -1,4 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject EVoteUG.Client.Services.AuthState AuthState
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">EVoteUG.Client</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -24,6 +26,24 @@
                 <span class="bi bi-gear-fill-nav-menu" aria-hidden="true"></span> Admin
             </NavLink>
         </div>
+
+        @if (AuthState.IsLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <span class="nav-link">Logged in as @AuthState.Student?.FullName</span>
+            </div>
+            <div class="nav-item px-3">
+                <button class="nav-link btn btn-link" @onclick="HandleLogout">Logout</button>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Login
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 
@@ -35,5 +55,10 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthState.LogOutAsync();
     }
 }

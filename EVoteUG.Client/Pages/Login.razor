@@ -1,0 +1,47 @@
+@page "/login"
+@inject EVoteUG.Client.Services.StudentService StudentService
+@inject EVoteUG.Client.Services.AuthState AuthState
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
+
+<PageTitle>Login</PageTitle>
+
+<h1>Student Login</h1>
+
+<div>
+    <label>Email:</label>
+    <input type="email" @bind="email" />
+</div>
+
+<div>
+    <label>Password:</label>
+    <input type="password" @bind="password" />
+</div>
+
+<br />
+<button @onclick="HandleLogin">Login</button>
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <p>@resultMessage</p>
+}
+
+@code {
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string? resultMessage;
+
+    private async Task HandleLogin()
+    {
+        var result = await StudentService.LoginAsync(email, password);
+
+        if (result.Success && result.Student != null)
+        {
+            await AuthState.LogInAsync(result.Student);
+            NavigationManager.NavigateTo("/elections");
+        }
+        else
+        {
+            resultMessage = result.Message;
+        }
+    }
+}

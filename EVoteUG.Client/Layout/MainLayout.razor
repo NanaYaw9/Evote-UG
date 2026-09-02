@@ -1,4 +1,7 @@
 ﻿@inherits LayoutComponentBase
+@inject EVoteUG.Client.Services.AuthState AuthState
+@implements IAsyncDisposable
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -14,3 +17,17 @@
         </article>
     </main>
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        AuthState.OnChange += StateHasChanged;
+        await AuthState.InitializeAsync();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        AuthState.OnChange -= StateHasChanged;
+        return ValueTask.CompletedTask;
+    }
+}
