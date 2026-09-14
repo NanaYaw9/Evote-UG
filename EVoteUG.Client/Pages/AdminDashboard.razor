@@ -5,35 +5,37 @@
 
 <PageTitle>Admin Dashboard</PageTitle>
 
-<h1>Admin Dashboard</h1>
+<AdminGuard>
+    <h1>Admin Dashboard</h1>
 
-<h3>Create New</h3>
-<ul>
-    <li><a href="/admin/elections/create">Create Election</a></li>
-    <li><a href="/admin/positions/create">Create Position</a></li>
-    <li><a href="/admin/candidates/create">Create Candidate</a></li>
-</ul>
+    <h3>Create New</h3>
+    <ul>
+        <li><a href="/admin/elections/create">Create Election</a></li>
+        <li><a href="/admin/positions/create">Create Position</a></li>
+        <li><a href="/admin/candidates/create">Create Candidate</a></li>
+    </ul>
 
-<h3>Manage Elections</h3>
-@if (elections == null)
-{
-    <p>Loading...</p>
-}
-else if (elections.Count == 0)
-{
-    <p>No elections yet.</p>
-}
-else
-{
-    @foreach (var election in elections)
-{
-    <div>
-        <strong>@election.Title</strong>
-        — <a href="/elections/@election.Id">View</a>
-        — <a href="/elections/@election.Id/results">Results</a>
-    </div>
-}
-}
+    <h3>Manage Elections</h3>
+    @if (elections == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (elections.Count == 0)
+    {
+        <p>No elections yet.</p>
+    }
+    else
+    {
+        @foreach (var election in elections)
+        {
+            <div>
+                <strong>@election.Title</strong>
+                — <a href="/elections/@election.Id">View</a>
+                — <a href="/elections/@election.Id/results">Results</a>
+            </div>
+        }
+    }
+</AdminGuard>
 
 @code {
     private List<Election>? elections;
