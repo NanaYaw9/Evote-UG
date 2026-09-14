@@ -1,0 +1,47 @@
+@page "/admin/login"
+@inject EVoteUG.Client.Services.AdminService AdminService
+@inject EVoteUG.Client.Services.AuthState AuthState
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
+
+<PageTitle>Admin Login</PageTitle>
+
+<h1>Admin Login</h1>
+
+<div>
+    <label>Username:</label>
+    <input @bind="username" />
+</div>
+
+<div>
+    <label>Password:</label>
+    <input type="password" @bind="password" />
+</div>
+
+<br />
+<button @onclick="HandleLogin">Login</button>
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <p>@resultMessage</p>
+}
+
+@code {
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string? resultMessage;
+
+    private async Task HandleLogin()
+    {
+        var result = await AdminService.LoginAsync(username, password);
+
+        if (result.Success && result.Admin != null)
+        {
+            await AuthState.LogInAdminAsync(result.Admin);
+            NavigationManager.NavigateTo("/admin");
+        }
+        else
+        {
+            resultMessage = result.Message;
+        }
+    }
+}
