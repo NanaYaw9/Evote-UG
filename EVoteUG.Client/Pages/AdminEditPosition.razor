@@ -4,32 +4,34 @@
 
 <PageTitle>Edit Position</PageTitle>
 
-<h1>Edit Position</h1>
+<AdminGuard>
+    <h1>Edit Position</h1>
 
-@if (position == null)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <EditForm Model="position" OnValidSubmit="HandleSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+    @if (position == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <EditForm Model="position" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div>
-            <label>Position Title:</label>
-            <InputText @bind-Value="position.Title" />
-        </div>
+            <div>
+                <label>Position Title:</label>
+                <InputText @bind-Value="position.Title" />
+            </div>
 
-        <br />
-        <button type="submit">Save Changes</button>
-    </EditForm>
-}
+            <br />
+            <button type="submit">Save Changes</button>
+        </EditForm>
+    }
 
-@if (!string.IsNullOrEmpty(resultMessage))
-{
-    <p>@resultMessage</p>
-}
+    @if (!string.IsNullOrEmpty(resultMessage))
+    {
+        <p>@resultMessage</p>
+    }
+</AdminGuard>
 
 @code {
     [Parameter]
