@@ -14,13 +14,43 @@ public class PositionService
 
     public async Task<List<Position>> GetPositionsByElectionAsync(int electionId)
     {
-        var positions = await _http.GetFromJsonAsync<List<Position>>($"api/positions?electionId={electionId}");
-        return positions ?? new List<Position>();
+        try
+        {
+            var envelope = await _http.GetFromJsonAsync<EVoteUG.Shared.Responses.ApiResponse<List<Position>>>($"api/positions?electionId={electionId}");
+            if (envelope?.Data != null)
+                return envelope.Data;
+        }
+        catch { }
+
+        try
+        {
+            var positions = await _http.GetFromJsonAsync<List<Position>>($"api/positions?electionId={electionId}");
+            return positions ?? new List<Position>();
+        }
+        catch
+        {
+            return new List<Position>();
+        }
     }
 
     public async Task<Position?> GetPositionWithCandidatesAsync(int positionId)
     {
-        return await _http.GetFromJsonAsync<Position>($"api/positions/{positionId}");
+        try
+        {
+            var envelope = await _http.GetFromJsonAsync<EVoteUG.Shared.Responses.ApiResponse<Position>>($"api/positions/{positionId}");
+            if (envelope?.Data != null)
+                return envelope.Data;
+        }
+        catch { }
+
+        try
+        {
+            return await _http.GetFromJsonAsync<Position>($"api/positions/{positionId}");
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task<(bool Success, string Message)> CreatePositionAsync(Position position)

@@ -1,8 +1,7 @@
+using EVoteUG.Core.DTOs.Auth;
+using EVoteUG.Core.Interfaces;
+using EVoteUG.Shared.Responses;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using EVoteUG.Api.Data;
-using EVoteUG.Api.DTOs;
-using EVoteUG.Shared.Models;
 
 namespace EVoteUG.Api.Controllers;
 
@@ -10,60 +9,41 @@ namespace EVoteUG.Api.Controllers;
 [Route("api/[controller]")]
 public class StudentsController : ControllerBase
 {
-    private readonly EVoteUGDbContext _context;
+    private readonly IAuthService _authService;
 
-    public StudentsController(EVoteUGDbContext context)
+    public StudentsController(IAuthService authService)
     {
-        _context = context;
+        _authService = authService;
     }
 
-    // POST: api/students/register
+    /// <summary>
+    /// Register a new university student account.
+    /// </summary>
     [HttpPost("register")]
-    public async Task<ActionResult<Student>> Register(RegisterDto dto)
+    [ProducesResponseType(typeof(ApiResponse<StudentResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<StudentResponseDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Register([FromBody] StudentRegisterRequestDto dto)
     {
-        var emailExists = await _context.Students.AnyAsync(s => s.Email == dto.Email);
-        if (emailExists)
-            return BadRequest("An account with this email already exists.");
+        var result = await _authService.RegisterStudentAsync(dto);
+        if (!result.Success)
+            return BadRequest(result);
 
-        var studentIdExists = await _context.Students.AnyAsync(s => s.StudentId == dto.StudentId);
-        if (studentIdExists)
-            return BadRequest("An account with this Student ID already exists.");
-
-        var student = new Student
-        {
-            StudentId = dto.StudentId,
-            FullName = dto.FullName,
-            Email = dto.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-        };
-
-        _context.Students.Add(student);
-        await _context.SaveChangesAsync();
-
-        student.PasswordHash = string.Empty;
-        return Ok(student);
+        return Ok(result);
     }
 
-    // POST: api/students/login
+    /// <summary>
+    /// Authenticate student and return student profile.
+    /// </summary>
     [HttpPost("login")]
-    public async Task<ActionResult> Login(LoginDto dto)
+    [ProducesResponseType(typeof(ApiResponse<StudentResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<StudentResponseDto>), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login([FromBody] StudentRegisterRequestDto dto)
     {
-        var student = await _context.Students.FirstOrDefaultAsync(s => s.Email == dto.Email);
+        var identifier = !string.IsNullOrWhiteSpace(dto.Email) ? dto.Email : dto.StudentId;
+        var result = await _authService.StudentDirectLoginAsync(identifier, dto.Password);
+        if (!result.Success)
+            return Unauthorized(result);
 
-        if (student == null)
-            return Unauthorized("Invalid email or password.");
-
-        bool passwordValid = BCrypt.Net.BCrypt.Verify(dto.Password, student.PasswordHash);
-
-        if (!passwordValid)
-            return Unauthorized("Invalid email or password.");
-
-        return Ok(new
-        {
-            student.Id,
-            student.StudentId,
-            student.FullName,
-            student.Email
-        });
+        return Ok(result);
     }
 }

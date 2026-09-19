@@ -18,10 +18,28 @@ public class VoteService
 
         if (response.IsSuccessStatusCode)
         {
-            return (true, "Vote cast successfully!");
+            try
+            {
+                var envelope = await response.Content.ReadFromJsonAsync<EVoteUG.Shared.Responses.ApiResponse<Vote>>();
+                return (true, envelope?.Message ?? "Vote cast successfully!");
+            }
+            catch
+            {
+                return (true, "Vote cast successfully!");
+            }
         }
         else
         {
+            try
+            {
+                var errorEnvelope = await response.Content.ReadFromJsonAsync<EVoteUG.Shared.Responses.ApiResponse<object>>();
+                if (errorEnvelope != null && !string.IsNullOrWhiteSpace(errorEnvelope.Message))
+                {
+                    return (false, errorEnvelope.Message);
+                }
+            }
+            catch { }
+
             var errorText = await response.Content.ReadAsStringAsync();
             return (false, errorText);
         }
