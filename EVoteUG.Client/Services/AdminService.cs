@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using EVoteUG.Shared.Responses;
 
 namespace EVoteUG.Client.Services;
 
@@ -24,11 +25,34 @@ public class AdminService
 
         if (response.IsSuccessStatusCode)
         {
-            var admin = await response.Content.ReadFromJsonAsync<CurrentAdmin>();
-            return (true, "Login successful!", admin);
+            try
+            {
+                var envelope = await response.Content.ReadFromJsonAsync<ApiResponse<CurrentAdmin>>();
+                if (envelope?.Data != null)
+                {
+                    return (true, envelope.Message ?? "Login successful!", envelope.Data);
+                }
+            }
+            catch { }
+
+            var direct = await response.Content.ReadFromJsonAsync<CurrentAdmin>();
+            return (true, "Login successful!", direct);
         }
         else
         {
+            try
+            {
+                var errorEnvelope = await response.Content.ReadFromJsonAsync<ApiResponse<object>>();
+                if (errorEnvelope != null && !string.IsNullOrWhiteSpace(errorEnvelope.Message))
+                {
+                    var msg = errorEnvelope.Errors?.Count > 0
+                        ? $"{errorEnvelope.Message} ({string.Join(", ", errorEnvelope.Errors)})"
+                        : errorEnvelope.Message;
+                    return (false, msg, null);
+                }
+            }
+            catch { }
+
             var errorText = await response.Content.ReadAsStringAsync();
             return (false, errorText, null);
         }

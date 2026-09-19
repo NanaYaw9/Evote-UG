@@ -321,4 +321,33 @@ public class VotingService : IVotingService
             _ => true
         };
     }
+
+    public async Task<ApiResponse<Vote>> CastDirectVoteAsync(Vote vote)
+    {
+        if (vote == null)
+            return ApiResponse<Vote>.Fail("Vote payload is empty.");
+
+        var studentExists = await _context.Students.AnyAsync(s => s.Id == vote.StudentId);
+        if (!studentExists)
+            return ApiResponse<Vote>.Fail("Student not found.");
+
+        var candidate = await _context.Candidates.FirstOrDefaultAsync(c => c.Id == vote.CandidateId);
+        if (candidate == null)
+            return ApiResponse<Vote>.Fail("Candidate not found.");
+
+        if (candidate.PositionId != vote.PositionId)
+            return ApiResponse<Vote>.Fail("This candidate does not belong to the specified position.");
+
+        var alreadyVoted = await _context.Votes
+            .AnyAsync(v => v.StudentId == vote.StudentId && v.PositionId == vote.PositionId);
+
+        if (alreadyVoted)
+            return ApiResponse<Vote>.Fail("You have already voted for this position.");
+
+        vote.Timestamp = DateTime.UtcNow;
+        _context.Votes.Add(vote);
+        await _context.SaveChangesAsync();
+
+        return ApiResponse<Vote>.Ok(vote, "Vote cast successfully.");
+    }
 }

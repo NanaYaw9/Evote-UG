@@ -30,3 +30,18 @@ public class UnauthorizedActionException : DomainException
 {
     public UnauthorizedActionException(string message = "You do not have permission to perform this action.") : base(message) { }
 }
+
+public class ConflictException : DomainException
+{
+    public ConflictException(string message) : base(message) { }
+}
+
+public class ValidationException : DomainException
+{
+    public List<string> Errors { get; }
+
+    public ValidationException(string message, List<string>? errors = null) : base(message)
+    {
+        Errors = errors ?? new List<string>();
+    }
+}

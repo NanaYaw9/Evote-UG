@@ -14,8 +14,23 @@ public class ElectionService
 
     public async Task<List<Election>> GetElectionsAsync()
     {
-        var elections = await _http.GetFromJsonAsync<List<Election>>("api/elections");
-        return elections ?? new List<Election>();
+        try
+        {
+            var envelope = await _http.GetFromJsonAsync<EVoteUG.Shared.Responses.ApiResponse<List<Election>>>("api/elections");
+            if (envelope?.Data != null)
+                return envelope.Data;
+        }
+        catch { }
+
+        try
+        {
+            var direct = await _http.GetFromJsonAsync<List<Election>>("api/elections");
+            return direct ?? new List<Election>();
+        }
+        catch
+        {
+            return new List<Election>();
+        }
     }
 
     public async Task<(bool Success, string Message)> CreateElectionAsync(Election election)

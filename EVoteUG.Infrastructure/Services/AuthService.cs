@@ -194,4 +194,96 @@ public class AuthService : IAuthService
             return ApiResponse<bool>.Ok(true, "Administrator password updated successfully.");
         }
     }
+
+    public async Task<ApiResponse<StudentResponseDto>> RegisterStudentAsync(StudentRegisterRequestDto request)
+    {
+        var validator = new StudentRegisterValidator();
+        var validation = await validator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            return ApiResponse<StudentResponseDto>.Fail(
+                "Validation failed.",
+                validation.Errors.Select(e => e.ErrorMessage).ToList());
+        }
+
+        var emailNormalized = request.Email.Trim().ToLower();
+        var studentIdTrimmed = request.StudentId.Trim();
+
+        var emailExists = await _context.Students.AnyAsync(s => s.Email.ToLower() == emailNormalized);
+        if (emailExists)
+            return ApiResponse<StudentResponseDto>.Fail("An account with this email already exists.");
+
+        var studentIdExists = await _context.Students.AnyAsync(s => s.StudentId == studentIdTrimmed);
+        if (studentIdExists)
+            return ApiResponse<StudentResponseDto>.Fail("An account with this Student ID already exists.");
+
+        var student = new Student
+        {
+            StudentId = studentIdTrimmed,
+            FullName = request.FullName.Trim(),
+            Email = emailNormalized,
+            PasswordHash = PasswordHasher.HashPassword(request.Password),
+            College = request.College ?? string.Empty,
+            Faculty = request.Faculty ?? string.Empty,
+            Department = request.Department ?? string.Empty,
+            HallOfResidence = request.HallOfResidence ?? string.Empty,
+            Level = request.Level > 0 ? request.Level : 100,
+            IsActive = true,
+            IsVerified = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Students.Add(student);
+        await _context.SaveChangesAsync();
+
+        var response = new StudentResponseDto
+        {
+            Id = student.Id,
+            StudentId = student.StudentId,
+            FullName = student.FullName,
+            Email = student.Email,
+            College = student.College,
+            Faculty = student.Faculty,
+            Department = student.Department,
+            HallOfResidence = student.HallOfResidence,
+            Level = student.Level,
+            IsActive = student.IsActive,
+            IsVerified = student.IsVerified
+        };
+
+        return ApiResponse<StudentResponseDto>.Ok(response, "Student registered successfully.");
+    }
+
+    public async Task<ApiResponse<StudentResponseDto>> StudentDirectLoginAsync(string identifier, string password)
+    {
+        if (string.IsNullOrWhiteSpace(identifier) || string.IsNullOrWhiteSpace(password))
+            return ApiResponse<StudentResponseDto>.Fail("Identifier and password are required.");
+
+        var trimmed = identifier.Trim();
+        var student = await _context.Students.FirstOrDefaultAsync(s =>
+            s.Email.ToLower() == trimmed.ToLower() || s.StudentId == trimmed);
+
+        if (student == null || !PasswordHasher.VerifyPassword(password, student.PasswordHash))
+            return ApiResponse<StudentResponseDto>.Fail("Invalid email or password.");
+
+        if (!student.IsActive)
+            return ApiResponse<StudentResponseDto>.Fail("Account is inactive.");
+
+        var response = new StudentResponseDto
+        {
+            Id = student.Id,
+            StudentId = student.StudentId,
+            FullName = student.FullName,
+            Email = student.Email,
+            College = student.College,
+            Faculty = student.Faculty,
+            Department = student.Department,
+            HallOfResidence = student.HallOfResidence,
+            Level = student.Level,
+            IsActive = student.IsActive,
+            IsVerified = student.IsVerified
+        };
+
+        return ApiResponse<StudentResponseDto>.Ok(response, "Login successful.");
+    }
 }

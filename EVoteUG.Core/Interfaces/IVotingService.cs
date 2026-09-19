@@ -8,6 +8,7 @@ public interface IVotingService
     Task<ApiResponse<BallotResponseDto>> GetEligibleBallotAsync(int electionId, int studentId);
     Task<ApiResponse<VoterStatusResponseDto>> CheckVoterStatusAsync(int electionId, int studentId);
     Task<ApiResponse<VoteReceiptResponseDto>> CastBallotAsync(int studentId, CastBallotRequestDto request, string ipAddress, string deviceInfo = "");
+    Task<ApiResponse<EVoteUG.Shared.Models.Vote>> CastDirectVoteAsync(EVoteUG.Shared.Models.Vote vote);
     Task<ApiResponse<List<VoteReceiptResponseDto>>> GetStudentReceiptsAsync(int studentId);
     Task<ApiResponse<bool>> VerifyReceiptHashAsync(string receiptHash);
 }

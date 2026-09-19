@@ -232,4 +232,20 @@ public class ResultsService : IResultsService
     {
         return await GetEligibleStudentsQuery(scope, scopeTarget).CountAsync();
     }
+
+    public async Task<ApiResponse<List<PositionResultItemDto>>> GetPositionResultsAsync(int positionId)
+    {
+        var results = await _context.Candidates
+            .Where(c => c.PositionId == positionId)
+            .Select(c => new PositionResultItemDto
+            {
+                CandidateId = c.Id,
+                CandidateName = c.FullName,
+                VoteCount = _context.Votes.Count(v => v.CandidateId == c.Id)
+            })
+            .OrderByDescending(r => r.VoteCount)
+            .ToListAsync();
+
+        return ApiResponse<List<PositionResultItemDto>>.Ok(results, "Position results retrieved successfully.");
+    }
 }

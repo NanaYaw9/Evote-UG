@@ -7,4 +7,5 @@ public interface IResultsService
 {
     Task<ApiResponse<ElectionResultsResponseDto>> GetElectionResultsAsync(int electionId, bool isPrivilegedCaller = false);
     Task<ApiResponse<TurnoutAnalyticsDto>> GetTurnoutAnalyticsAsync(int electionId);
+    Task<ApiResponse<List<PositionResultItemDto>>> GetPositionResultsAsync(int positionId);
 }

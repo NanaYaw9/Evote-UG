@@ -1,4 +1,5 @@
 using EVoteUG.Api.Extensions;
+using EVoteUG.Api.Middleware;
 using EVoteUG.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +37,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwtAuth();
 
 var app = builder.Build();
+
+app.UseGlobalExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

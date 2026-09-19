@@ -191,4 +191,92 @@ public class AdminService : IAdminService
         result.Add(currentField.ToString().Trim());
         return result.ToArray();
     }
+
+    public async Task<ApiResponse<AdminResponseDto>> RegisterAdminAsync(AdminRegisterRequestDto request)
+    {
+        var validator = new EVoteUG.Core.Validators.AdminRegisterValidator();
+        var validation = await validator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            return ApiResponse<AdminResponseDto>.Fail(
+                "Validation failed.",
+                validation.Errors.Select(e => e.ErrorMessage).ToList());
+        }
+
+        var usernameTrimmed = request.Username.Trim();
+        var exists = await _context.Admins.AnyAsync(a => a.Username.ToLower() == usernameTrimmed.ToLower());
+        if (exists)
+            return ApiResponse<AdminResponseDto>.Fail("An admin with this username already exists.");
+
+        var email = !string.IsNullOrWhiteSpace(request.Email)
+            ? request.Email.Trim().ToLower()
+            : $"{usernameTrimmed.ToLower().Replace(" ", "")}@ug.edu.gh";
+
+        var fullName = !string.IsNullOrWhiteSpace(request.FullName)
+            ? request.FullName.Trim()
+            : usernameTrimmed;
+
+        var emailExists = await _context.Admins.AnyAsync(a => a.Email.ToLower() == email.ToLower());
+        if (emailExists)
+            return ApiResponse<AdminResponseDto>.Fail("An admin with this email already exists.");
+
+        var admin = new Admin
+        {
+            Username = usernameTrimmed,
+            FullName = fullName,
+            Email = email,
+            PasswordHash = PasswordHasher.HashPassword(request.Password),
+            Role = request.Role,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Admins.Add(admin);
+        await _context.SaveChangesAsync();
+
+        var response = new AdminResponseDto
+        {
+            Id = admin.Id,
+            Username = admin.Username,
+            FullName = admin.FullName,
+            Email = admin.Email,
+            Role = admin.Role,
+            IsActive = admin.IsActive,
+            CreatedAt = admin.CreatedAt,
+            LastLogin = admin.LastLogin
+        };
+
+        return ApiResponse<AdminResponseDto>.Ok(response, "Admin registered successfully.");
+    }
+
+    public async Task<ApiResponse<List<AdminResponseDto>>> GetAdminsAsync()
+    {
+        var admins = await _context.Admins
+            .Select(a => new AdminResponseDto
+            {
+                Id = a.Id,
+                Username = a.Username,
+                FullName = a.FullName,
+                Email = a.Email,
+                Role = a.Role,
+                IsActive = a.IsActive,
+                CreatedAt = a.CreatedAt,
+                LastLogin = a.LastLogin
+            })
+            .ToListAsync();
+
+        return ApiResponse<List<AdminResponseDto>>.Ok(admins, "Admins retrieved successfully.");
+    }
+
+    public async Task<ApiResponse<bool>> DeleteAdminAsync(int id)
+    {
+        var admin = await _context.Admins.FindAsync(id);
+        if (admin == null)
+            return ApiResponse<bool>.Fail("Admin not found.");
+
+        _context.Admins.Remove(admin);
+        await _context.SaveChangesAsync();
+
+        return ApiResponse<bool>.Ok(true, "Admin deleted successfully.");
+    }
 }

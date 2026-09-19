@@ -19,6 +19,23 @@ public class PositionsController : ControllerBase
     }
 
     /// <summary>
+    /// Retrieve positions, optionally filtered by election ID.
+    /// </summary>
+    [HttpGet]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<List<PositionResponseDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPositions([FromQuery] int? electionId)
+    {
+        if (electionId.HasValue)
+        {
+            var result = await _positionService.GetPositionsByElectionAsync(electionId.Value);
+            return Ok(result);
+        }
+
+        return Ok(ApiResponse<List<PositionResponseDto>>.Ok(new List<PositionResponseDto>()));
+    }
+
+    /// <summary>
     /// Retrieve positions for a specific election.
     /// </summary>
     [HttpGet("by-election/{electionId}")]

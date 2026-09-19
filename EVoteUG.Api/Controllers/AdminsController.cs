@@ -1,9 +1,8 @@
+using EVoteUG.Core.DTOs.Admin;
+using EVoteUG.Core.DTOs.Auth;
+using EVoteUG.Core.Interfaces;
+using EVoteUG.Shared.Responses;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using EVoteUG.Infrastructure.Data;
-using EVoteUG.Infrastructure.Security;
-using EVoteUG.Api.DTOs;
-using EVoteUG.Shared.Models;
 
 namespace EVoteUG.Api.Controllers;
 
@@ -11,88 +10,76 @@ namespace EVoteUG.Api.Controllers;
 [Route("api/[controller]")]
 public class AdminsController : ControllerBase
 {
-    private readonly EVoteUGDbContext _context;
+    private readonly IAdminService _adminService;
+    private readonly IAuthService _authService;
 
-    public AdminsController(EVoteUGDbContext context)
+    public AdminsController(IAdminService adminService, IAuthService authService)
     {
-        _context = context;
+        _adminService = adminService;
+        _authService = authService;
     }
 
-    // POST: api/admins/login
+    /// <summary>
+    /// Authenticate administrator.
+    /// </summary>
     [HttpPost("login")]
-    public async Task<ActionResult> Login(AdminLoginDto dto)
+    [ProducesResponseType(typeof(ApiResponse<AdminResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<AdminResponseDto>), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login([FromBody] AdminLoginRequestDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
-            return BadRequest("Username and password are required.");
+        var authResult = await _authService.AdminLoginAsync(dto);
+        if (!authResult.Success)
+            return Unauthorized(ApiResponse<AdminResponseDto>.Fail(authResult.Message, authResult.Errors));
 
-        var admin = await _context.Admins.FirstOrDefaultAsync(a => a.Username == dto.Username.Trim());
-
-        if (admin == null)
-            return Unauthorized("Invalid username or password.");
-
-        bool passwordValid = PasswordHasher.VerifyPassword(dto.Password, admin.PasswordHash);
-
-        if (!passwordValid)
-            return Unauthorized("Invalid username or password.");
-
-        return Ok(new
+        var adminDto = new AdminResponseDto
         {
-            admin.Id,
-            admin.Username
-        });
-    }
-
-    // POST: api/admins/register
-    [HttpPost("register")]
-    public async Task<ActionResult<Admin>> Register(AdminRegisterDto dto)
-    {
-        if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
-            return BadRequest("Username and password are required.");
-
-        var exists = await _context.Admins.AnyAsync(a => a.Username == dto.Username.Trim());
-        if (exists)
-            return BadRequest("An admin with this username already exists.");
-
-        var username = dto.Username.Trim();
-        var admin = new Admin
-        {
-            Username = username,
-            FullName = username,
-            Email = $"{username.ToLower().Replace(" ", "")}@ug.edu.gh",
-            PasswordHash = PasswordHasher.HashPassword(dto.Password)
+            Username = authResult.Data!.Identifier,
+            FullName = authResult.Data.FullName,
+            Email = authResult.Data.Email,
+            IsActive = true
         };
 
-        _context.Admins.Add(admin);
-        await _context.SaveChangesAsync();
-
-        admin.PasswordHash = string.Empty;
-        return Ok(admin);
+        return Ok(ApiResponse<AdminResponseDto>.Ok(adminDto, "Login successful."));
     }
 
+    /// <summary>
+    /// Register a new administrator account.
+    /// </summary>
+    [HttpPost("register")]
+    [ProducesResponseType(typeof(ApiResponse<AdminResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<AdminResponseDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Register([FromBody] AdminRegisterRequestDto dto)
+    {
+        var result = await _adminService.RegisterAdminAsync(dto);
+        if (!result.Success)
+            return BadRequest(result);
 
-// DELETE: api/admins/5
-[HttpDelete("{id}")]
-public async Task<IActionResult> DeleteAdmin(int id)
-{
-    var admin = await _context.Admins.FindAsync(id);
-    if (admin == null)
-        return NotFound();
+        return Ok(result);
+    }
 
-    _context.Admins.Remove(admin);
-    await _context.SaveChangesAsync();
+    /// <summary>
+    /// Delete administrator by ID.
+    /// </summary>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteAdmin(int id)
+    {
+        var result = await _adminService.DeleteAdminAsync(id);
+        if (!result.Success)
+            return NotFound(result);
 
-    return NoContent();
-}
+        return Ok(result);
+    }
 
-
-// GET: api/admins
-[HttpGet]
-public async Task<ActionResult<List<object>>> GetAdmins()
-{
-    var admins = await _context.Admins
-        .Select(a => new { a.Id, a.Username })
-        .ToListAsync();
-
-    return Ok(admins);
-}
+    /// <summary>
+    /// Retrieve list of all administrators.
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(ApiResponse<List<AdminResponseDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAdmins()
+    {
+        var result = await _adminService.GetAdminsAsync();
+        return Ok(result);
+    }
 }
