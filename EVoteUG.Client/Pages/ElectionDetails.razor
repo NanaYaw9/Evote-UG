@@ -1,11 +1,17 @@
 @page "/elections/{ElectionId:int}"
 @inject EVoteUG.Client.Services.PositionService PositionService
 @inject EVoteUG.Client.Services.VoteService VoteService
+@inject EVoteUG.Client.Services.AuthState AuthState
 @using EVoteUG.Shared.Models
 
 <PageTitle>Election Details</PageTitle>
 
 <h1>Positions</h1>
+
+@if (!AuthState.IsLoggedIn)
+{
+    <p><em>You must <a href="/login">log in</a> to vote. You can still view the positions and candidates below.</em></p>
+}
 
 @if (positions == null)
 {
@@ -30,20 +36,30 @@ else
             @foreach (var candidate in position.Candidates)
             {
                 <div>
-                    <label>
-                        <input type="radio"
-                               name="position-@position.Id"
-                               value="@candidate.Id"
-                               @onchange="() => SelectCandidate(position.Id, candidate.Id)" />
-                        @candidate.FullName — @candidate.Bio
-                    </label>
+                    @if (AuthState.IsLoggedIn)
+                    {
+                        <label>
+                            <input type="radio"
+                                   name="position-@position.Id"
+                                   value="@candidate.Id"
+                                   @onchange="() => SelectCandidate(position.Id, candidate.Id)" />
+                            @candidate.FullName — @candidate.Bio
+                        </label>
+                    }
+                    else
+                    {
+                        <span>@candidate.FullName — @candidate.Bio</span>
+                    }
                 </div>
             }
         }
     }
 
-    <br />
-    <button @onclick="SubmitVotes">Submit My Votes</button>
+    @if (AuthState.IsLoggedIn)
+    {
+        <br />
+        <button @onclick="SubmitVotes">Submit My Votes</button>
+    }
 
     @if (!string.IsNullOrEmpty(resultMessage))
     {
@@ -58,9 +74,6 @@ else
     private List<Position>? positions;
     private Dictionary<int, int> selections = new();
     private string? resultMessage;
-
-    // TEMPORARY: hardcoded until real login exists
-    private const int CurrentStudentId = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,13 +95,19 @@ else
 
     private async Task SubmitVotes()
     {
+        if (!AuthState.IsLoggedIn)
+        {
+            resultMessage = "You must be logged in to vote.";
+            return;
+        }
+
         resultMessage = "Submitting...";
 
         foreach (var selection in selections)
         {
             var vote = new Vote
             {
-                StudentId = CurrentStudentId,
+                StudentId = AuthState.Student!.Id,
                 PositionId = selection.Key,
                 CandidateId = selection.Value
             };

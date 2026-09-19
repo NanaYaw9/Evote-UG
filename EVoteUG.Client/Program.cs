@@ -16,5 +16,9 @@ builder.Services.AddScoped<ElectionService>();
 builder.Services.AddScoped<PositionService>();
 builder.Services.AddScoped<VoteService>();
 builder.Services.AddScoped<CandidateService>();
+builder.Services.AddScoped<ResultService>();
+builder.Services.AddScoped<StudentService>();
+builder.Services.AddSingleton<AuthState>();
+builder.Services.AddScoped<AdminService>();
 
 await builder.Build().RunAsync();

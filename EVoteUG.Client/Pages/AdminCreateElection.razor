@@ -4,47 +4,49 @@
 
 <PageTitle>Create Election</PageTitle>
 
-<h1>Create New Election</h1>
+<AdminGuard>
+    <h1>Create New Election</h1>
 
-<EditForm Model="newElection" OnValidSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <EditForm Model="newElection" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <div>
-        <label>Title:</label>
-        <InputText @bind-Value="newElection.Title" />
-    </div>
+        <div>
+            <label>Title:</label>
+            <InputText @bind-Value="newElection.Title" />
+        </div>
 
-    <div>
-        <label>Description:</label>
-        <InputTextArea @bind-Value="newElection.Description" />
-    </div>
+        <div>
+            <label>Description:</label>
+            <InputTextArea @bind-Value="newElection.Description" />
+        </div>
 
-    <div>
-        <label>Start Date:</label>
-        <InputDate @bind-Value="newElection.StartDate" />
-    </div>
+        <div>
+            <label>Start Date:</label>
+            <InputDate @bind-Value="newElection.StartDate" />
+        </div>
 
-    <div>
-        <label>End Date:</label>
-        <InputDate @bind-Value="newElection.EndDate" />
-    </div>
+        <div>
+            <label>End Date:</label>
+            <InputDate @bind-Value="newElection.EndDate" />
+        </div>
 
-    <div>
-        <label>
-            <InputCheckbox @bind-Value="newElection.IsActive" />
-            Active
-        </label>
-    </div>
+        <div>
+            <label>
+                <InputCheckbox @bind-Value="newElection.IsActive" />
+                Active
+            </label>
+        </div>
 
-    <br />
-    <button type="submit">Create Election</button>
-</EditForm>
+        <br />
+        <button type="submit">Create Election</button>
+    </EditForm>
 
-@if (!string.IsNullOrEmpty(resultMessage))
-{
-    <p>@resultMessage</p>
-}
+    @if (!string.IsNullOrEmpty(resultMessage))
+    {
+        <p>@resultMessage</p>
+    }
+</AdminGuard>
 
 @code {
     private Election newElection = new();
