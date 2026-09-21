@@ -40,20 +40,25 @@ var app = builder.Build();
 
 app.UseGlobalExceptionHandler();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Enable Swagger in all environments for API documentation
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Vote UG API v1");
-    });
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Vote UG API v1");
+    c.RoutePrefix = "swagger";
+});
 
-    // Automatically apply EF Core migrations and seed data in Development
+// Automatically apply EF Core migrations and seed data
+try
+{
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<EVoteUGDbContext>();
     dbContext.Database.Migrate();
     DbInitializer.SeedAsync(dbContext, app.Configuration, app.Logger).GetAwaiter().GetResult();
+}
+catch (Exception ex)
+{
+    app.Logger.LogError(ex, "An error occurred while migrating or seeding the database.");
 }
 
 app.UseCors("AllowBlazorClient");
