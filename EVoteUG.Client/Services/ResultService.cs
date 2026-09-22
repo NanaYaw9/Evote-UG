@@ -20,7 +20,22 @@ public class ResultService
 
     public async Task<List<ResultItem>> GetResultsAsync(int positionId)
     {
-        var results = await _http.GetFromJsonAsync<List<ResultItem>>($"api/votes/results/{positionId}");
-        return results ?? new List<ResultItem>();
+        try
+        {
+            var envelope = await _http.GetFromJsonAsync<EVoteUG.Shared.Responses.ApiResponse<List<ResultItem>>>($"api/votes/results/{positionId}");
+            if (envelope?.Data != null)
+                return envelope.Data;
+        }
+        catch { }
+
+        try
+        {
+            var results = await _http.GetFromJsonAsync<List<ResultItem>>($"api/votes/results/{positionId}");
+            return results ?? new List<ResultItem>();
+        }
+        catch
+        {
+            return new List<ResultItem>();
+        }
     }
 }
