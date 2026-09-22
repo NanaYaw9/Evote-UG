@@ -1,5 +1,28 @@
+:root {
+    --bg-main: #0F0E1E;
+    --bg-panel: #181729;
+    --bg-panel-hover: #211f3a;
+    --border-color: #2A2844;
+
+    --accent-primary: #A855F7;
+    --accent-primary-hover: #9333EA;
+    --accent-secondary: #38BDF8;
+
+    --status-success: #4ADE80;
+    --status-danger: #F87171;
+
+    --text-primary: #FFFFFF;
+    --text-muted: #9CA3AF;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
 }
 
 h1:focus {
@@ -7,17 +30,63 @@ h1:focus {
 }
 
 a, .btn-link {
-    color: #0071c1;
+    color: var(--accent-secondary);
+    text-decoration: none;
 }
 
-.btn-primary {
+a:hover, .btn-link:hover {
+    color: var(--accent-primary);
+}
+
+.btn-primary, button[type="submit"], button {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: var(--accent-primary);
+    border: none;
+    border-radius: 999px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.btn-primary:hover, button[type="submit"]:hover, button:hover {
+    background-color: var(--accent-primary-hover);
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.15rem var(--bg-main), 0 0 0 0.3rem var(--accent-secondary);
+}
+
+/* Form inputs need explicit dark styling, or they default to white/black from the browser */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+textarea,
+select {
+    background-color: var(--bg-panel);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="date"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+label {
+    color: var(--text-muted);
+    display: block;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
 }
 
 .content {
@@ -25,15 +94,15 @@ a, .btn-link {
 }
 
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+    outline: 1px solid var(--status-success);
 }
 
 .invalid {
-    outline: 1px solid red;
+    outline: 1px solid var(--status-danger);
 }
 
 .validation-message {
-    color: red;
+    color: var(--status-danger);
 }
 
 #blazor-error-ui {
@@ -46,6 +115,7 @@ a, .btn-link {
     position: fixed;
     width: 100%;
     z-index: 1000;
+    color: #000;
 }
 
     #blazor-error-ui .dismiss {
@@ -75,14 +145,14 @@ a, .btn-link {
 
     .loading-progress circle {
         fill: none;
-        stroke: #e0e0e0;
+        stroke: var(--border-color);
         stroke-width: 0.6rem;
         transform-origin: 50% 50%;
         transform: rotate(-90deg);
     }
 
         .loading-progress circle:last-child {
-            stroke: #1b6ec2;
+            stroke: var(--accent-primary);
             stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
             transition: stroke-dasharray 0.05s ease-in-out;
         }
@@ -99,5 +169,33 @@ a, .btn-link {
     }
 
 code {
-    color: #c02d76;
+    color: var(--accent-secondary);
+}
+
+/* Reusable card component for later pages */
+.card {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Status badges */
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-active {
+    background-color: rgba(74, 222, 128, 0.15);
+    color: var(--status-success);
+}
+
+.badge-closed {
+    background-color: rgba(248, 113, 113, 0.15);
+    color: var(--status-danger);
 }

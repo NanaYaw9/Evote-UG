@@ -16,18 +16,28 @@ else if (elections.Count == 0)
 }
 else
 {
-    <ul>
-        @foreach (var election in elections)
-        {
-            <li>
-                <a href="/elections/@election.Id">
-                    <strong>@election.Title</strong>
-                </a> — @election.Description
-                <br />
-                <small>@election.StartDate.ToShortDateString() to @election.EndDate.ToShortDateString()</small>
-            </li>
-        }
-    </ul>
+    @foreach (var election in elections)
+    {
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="/elections/@election.Id" style="font-size: 1.2rem; font-weight: 600;">
+                    @election.Title
+                </a>
+                @if (IsActive(election))
+                {
+                    <span class="badge badge-active">Active</span>
+                }
+                else
+                {
+                    <span class="badge badge-closed">Closed</span>
+                }
+            </div>
+            <p style="color: var(--text-muted); margin: 0.5rem 0;">@election.Description</p>
+            <small style="color: var(--text-muted);">
+                @election.StartDate.ToShortDateString() to @election.EndDate.ToShortDateString()
+            </small>
+        </div>
+    }
 }
 
 @code {
@@ -36,5 +46,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         elections = await ElectionService.GetElectionsAsync();
+    }
+
+    private bool IsActive(Election election)
+    {
+        return election.IsActive && DateTime.UtcNow <= election.EndDate;
     }
 }

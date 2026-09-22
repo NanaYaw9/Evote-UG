@@ -19,21 +19,33 @@ else
 {
     @foreach (var position in positions)
     {
-        <h3>@position.Title</h3>
+        <div class="card">
+            <h3 style="margin-top: 0;">@position.Title</h3>
 
-        @if (resultsByPosition.TryGetValue(position.Id, out var results) && results.Count > 0)
-        {
-            <ul>
+            @if (resultsByPosition.TryGetValue(position.Id, out var results) && results.Count > 0)
+            {
+                var maxVotes = results.Max(r => r.VoteCount);
+
                 @foreach (var result in results)
                 {
-                    <li>@result.CandidateName — @result.VoteCount vote(s)</li>
+                    var percent = maxVotes > 0 ? (double)result.VoteCount / maxVotes * 100 : 0;
+
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span>@result.CandidateName</span>
+                            <span style="color: var(--text-muted);">@result.VoteCount vote(s)</span>
+                        </div>
+                        <div style="background-color: var(--bg-main); border-radius: 999px; height: 0.6rem; overflow: hidden;">
+                            <div style="background-color: var(--accent-primary); height: 100%; width: @percent.ToString("0")%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
                 }
-            </ul>
-        }
-        else
-        {
-            <p><em>No candidates or votes yet.</em></p>
-        }
+            }
+            else
+            {
+                <p style="color: var(--text-muted);"><em>No candidates or votes yet.</em></p>
+            }
+        </div>
     }
 }
 

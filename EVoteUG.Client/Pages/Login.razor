@@ -5,27 +5,30 @@
 
 <PageTitle>Login</PageTitle>
 
-<h1>Student Login</h1>
+<div class="card" style="max-width: 400px; margin: 3rem auto; padding: 2rem;">
+    <h1 style="text-align: center; font-size: 1.6rem; margin-bottom: 1.5rem;">Student Login</h1>
 
-<div>
-    <label>Email:</label>
-    <input type="email" @bind="email" />
+    <div>
+        <label>Email</label>
+        <input type="email" @bind="email" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <div>
+        <label>Password</label>
+        <input type="password" @bind="password" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <button @onclick="HandleLogin" style="width: 100%; margin-top: 1.5rem;">Login</button>
+
+    <p style="text-align: center; margin-top: 1rem;">
+        <a href="/register">Don't have an account? Register here</a>
+    </p>
+
+    @if (!string.IsNullOrEmpty(resultMessage))
+    {
+        <p style="color: var(--status-danger); text-align: center;">@resultMessage</p>
+    }
 </div>
-
-<div>
-    <label>Password:</label>
-    <input type="password" @bind="password" />
-</div>
-
-<br />
-<button @onclick="HandleLogin">Login</button>
-<br />
-<a href="/register">Don't have an account? Register here</a>
-
-@if (!string.IsNullOrEmpty(resultMessage))
-{
-    <p>@resultMessage</p>
-}
 
 @code {
     private string email = string.Empty;

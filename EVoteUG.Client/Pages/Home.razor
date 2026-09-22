@@ -1,7 +1,46 @@
 ﻿@page "/"
+@inject EVoteUG.Client.Services.AuthState AuthState
 
-<PageTitle>Home</PageTitle>
+<PageTitle>E-Vote UG</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="card" style="padding: 2.5rem; text-align: center; margin-bottom: 2rem;">
+    <h1 style="font-size: 2.2rem; margin-bottom: 0.5rem;">E-Vote UG</h1>
+    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto 1.5rem auto;">
+        Secure, transparent online voting for student representative elections.
+        Browse elections, view candidates, and cast your vote. All in one place.
+    </p>
 
-Welcome to your new app.
+    <div style="display: flex; justify-content: center; gap: 1rem;">
+        <a href="/elections" style="text-decoration: none;">
+            <button>Browse Elections</button>
+        </a>
+
+        @if (!AuthState.IsLoggedIn)
+        {
+            <a href="/login" style="text-decoration: none;">
+                <button style="background-color: var(--bg-panel-hover);">Student Login</button>
+            </a>
+        }
+    </div>
+</div>
+
+<div style="display: flex; gap: 1rem;">
+    <div class="card" style="flex: 1;">
+        <h3 style="margin-top: 0;">🗳️ Vote Securely</h3>
+        <p style="color: var(--text-muted); margin: 0;">
+            Each student gets one vote per position, verified and protected against duplicates.
+        </p>
+    </div>
+    <div class="card" style="flex: 1;">
+        <h3 style="margin-top: 0;">👀 View Candidates</h3>
+        <p style="color: var(--text-muted); margin: 0;">
+            Browse candidate profiles and platforms before making your decision.
+        </p>
+    </div>
+    <div class="card" style="flex: 1;">
+        <h3 style="margin-top: 0;">📊 Live Results</h3>
+        <p style="color: var(--text-muted); margin: 0;">
+            See real-time vote counts once elections are underway.
+        </p>
+    </div>
+</div>

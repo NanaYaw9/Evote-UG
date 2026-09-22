@@ -4,35 +4,36 @@
 
 <PageTitle>Register</PageTitle>
 
-<h1>Student Registration</h1>
+<div class="card" style="max-width: 400px; margin: 3rem auto; padding: 2rem;">
+    <h1 style="text-align: center; font-size: 1.6rem; margin-bottom: 1.5rem;">Student Registration</h1>
 
-<div>
-    <label>Student ID:</label>
-    <input @bind="studentId" />
+    <div>
+        <label>Student ID</label>
+        <input @bind="studentId" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <div>
+        <label>Full Name</label>
+        <input @bind="fullName" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <div>
+        <label>Email</label>
+        <input type="email" @bind="email" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <div>
+        <label>Password</label>
+        <input type="password" @bind="password" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <button @onclick="HandleRegister" style="width: 100%; margin-top: 1.5rem;">Register</button>
+
+    @if (!string.IsNullOrEmpty(resultMessage))
+    {
+        <p style="text-align: center; margin-top: 1rem;">@resultMessage</p>
+    }
 </div>
-
-<div>
-    <label>Full Name:</label>
-    <input @bind="fullName" />
-</div>
-
-<div>
-    <label>Email:</label>
-    <input type="email" @bind="email" />
-</div>
-
-<div>
-    <label>Password:</label>
-    <input type="password" @bind="password" />
-</div>
-
-<br />
-<button @onclick="HandleRegister">Register</button>
-
-@if (!string.IsNullOrEmpty(resultMessage))
-{
-    <p>@resultMessage</p>
-}
 
 @code {
     private string studentId = string.Empty;

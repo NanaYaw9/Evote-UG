@@ -7,6 +7,7 @@
 <PageTitle>Election Details</PageTitle>
 
 <h1>Positions</h1>
+<p><a href="/elections/@ElectionId/results">View Results</a></p>
 
 @if (!AuthState.IsLoggedIn)
 {
@@ -25,39 +26,46 @@ else
 {
     @foreach (var position in positions)
     {
-        <h3>@position.Title</h3>
+        <div class="card">
+            <h3 style="margin-top: 0;">@position.Title</h3>
 
-        @if (position.Candidates == null || position.Candidates.Count == 0)
-        {
-            <p><em>No candidates yet.</em></p>
-        }
-        else
-        {
-            @foreach (var candidate in position.Candidates)
+            @if (position.Candidates == null || position.Candidates.Count == 0)
             {
-                <div>
-                    @if (AuthState.IsLoggedIn)
-                    {
-                        <label>
-                            <input type="radio"
-                                   name="position-@position.Id"
-                                   value="@candidate.Id"
-                                   @onchange="() => SelectCandidate(position.Id, candidate.Id)" />
-                            @candidate.FullName — @candidate.Bio
-                        </label>
-                    }
-                    else
-                    {
-                        <span>@candidate.FullName — @candidate.Bio</span>
-                    }
-                </div>
+                <p style="color: var(--text-muted);"><em>No candidates yet.</em></p>
             }
-        }
+            else
+            {
+                @foreach (var candidate in position.Candidates)
+                {
+                    <div style="background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.5rem;">
+                        @if (AuthState.IsLoggedIn)
+                        {
+                            <label style="display: flex; align-items: center; gap: 0.5rem; margin: 0; color: var(--text-primary);">
+                                <input type="radio"
+                                       name="position-@position.Id"
+                                       value="@candidate.Id"
+                                       @onchange="() => SelectCandidate(position.Id, candidate.Id)" />
+                                <span>
+                                    <strong>@candidate.FullName</strong>
+                                    <br />
+                                    <small style="color: var(--text-muted);">@candidate.Bio</small>
+                                </span>
+                            </label>
+                        }
+                        else
+                        {
+                            <strong>@candidate.FullName</strong>
+                            <br />
+                            <small style="color: var(--text-muted);">@candidate.Bio</small>
+                        }
+                    </div>
+                }
+            }
+        </div>
     }
 
     @if (AuthState.IsLoggedIn)
     {
-        <br />
         <button @onclick="SubmitVotes">Submit My Votes</button>
     }
 
