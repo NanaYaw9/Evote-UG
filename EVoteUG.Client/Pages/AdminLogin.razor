@@ -20,6 +20,10 @@
 
     <button @onclick="HandleLogin" style="width: 100%; margin-top: 1.5rem;">Login</button>
 
+    <p style="text-align: center; margin-top: 1rem;">
+    <a href="/admin/register">Can't log in? Register a new admin account here</a>
+</p>
+
     @if (!string.IsNullOrEmpty(resultMessage))
     {
         <p style="color: var(--status-danger); text-align: center; margin-top: 1rem;">@resultMessage</p>

@@ -2,6 +2,7 @@ using EVoteUG.Core.DTOs.Admin;
 using EVoteUG.Core.DTOs.Auth;
 using EVoteUG.Core.Interfaces;
 using EVoteUG.Shared.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EVoteUG.Api.Controllers;
@@ -23,6 +24,7 @@ public class AdminsController : ControllerBase
     /// Authenticate administrator.
     /// </summary>
     [HttpPost("login")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResponse<AdminResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<AdminResponseDto>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] AdminLoginRequestDto dto)
@@ -43,9 +45,10 @@ public class AdminsController : ControllerBase
     }
 
     /// <summary>
-    /// Register a new administrator account.
+    /// Register a new administrator account. Open for demo/project purposes.
     /// </summary>
     [HttpPost("register")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResponse<AdminResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<AdminResponseDto>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] AdminRegisterRequestDto dto)
@@ -58,9 +61,10 @@ public class AdminsController : ControllerBase
     }
 
     /// <summary>
-    /// Delete administrator by ID.
+    /// Delete administrator by ID. Requires existing admin authentication.
     /// </summary>
     [HttpDelete("{id}")]
+    [Authorize(Policy = "RequireAdmin")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAdmin(int id)
@@ -73,9 +77,10 @@ public class AdminsController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieve list of all administrators.
+    /// Retrieve list of all administrators. Requires existing admin authentication.
     /// </summary>
     [HttpGet]
+    [Authorize(Policy = "RequireAdmin")]
     [ProducesResponseType(typeof(ApiResponse<List<AdminResponseDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAdmins()
     {
