@@ -35,9 +35,9 @@
     {
         var result = await AdminService.LoginAsync(username, password);
 
-        if (result.Success && result.Admin != null)
+        if (result.Success && result.User != null)
         {
-            await AuthState.LogInAdminAsync(result.Admin);
+            await AuthState.LogInAsync(result.User);
             NavigationManager.NavigateTo("/admin");
         }
         else

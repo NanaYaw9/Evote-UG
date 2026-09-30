@@ -1,7 +1,7 @@
 @inject EVoteUG.Client.Services.AuthState AuthState
 @inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
 
-@if (AuthState.IsAdminLoggedIn)
+@if (AuthState.IsAdmin)
 {
     @ChildContent
 }
@@ -16,7 +16,7 @@ else
 
     protected override void OnInitialized()
     {
-        if (!AuthState.IsAdminLoggedIn)
+        if (!AuthState.IsAdmin)
         {
             NavigationManager.NavigateTo("/admin/login");
         }

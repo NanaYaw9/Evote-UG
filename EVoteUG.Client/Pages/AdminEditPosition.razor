@@ -1,30 +1,30 @@
 @page "/admin/positions/edit/{PositionId:int}"
 @inject EVoteUG.Client.Services.PositionService PositionService
-@using EVoteUG.Shared.Models
 
 <PageTitle>Edit Position</PageTitle>
 
 <AdminGuard>
     <h1>Edit Position</h1>
 
-    @if (position == null)
+    @if (editRequest == null)
     {
         <p>Loading...</p>
     }
     else
     {
-        <EditForm Model="position" OnValidSubmit="HandleSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
+        <div class="card" style="max-width: 500px;">
             <div>
-                <label>Position Title:</label>
-                <InputText @bind-Value="position.Title" />
+                <label>Position Title</label>
+                <input @bind="editRequest.Title" style="width: 100%; box-sizing: border-box;" />
             </div>
 
-            <br />
-            <button type="submit">Save Changes</button>
-        </EditForm>
+            <div>
+                <label>Description</label>
+                <textarea @bind="editRequest.Description" style="width: 100%; box-sizing: border-box;"></textarea>
+            </div>
+
+            <button @onclick="HandleSubmit" style="margin-top: 1.5rem;">Save Changes</button>
+        </div>
     }
 
     @if (!string.IsNullOrEmpty(resultMessage))
@@ -37,19 +37,30 @@
     [Parameter]
     public int PositionId { get; set; }
 
-    private Position? position;
+    private EVoteUG.Client.Services.CreatePositionRequest? editRequest;
     private string? resultMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        position = await PositionService.GetPositionWithCandidatesAsync(PositionId);
+        var position = await PositionService.GetPositionByIdAsync(PositionId);
+        if (position != null)
+        {
+            editRequest = new EVoteUG.Client.Services.CreatePositionRequest
+            {
+                ElectionId = position.ElectionId,
+                Title = position.Title,
+                Description = position.Description,
+                MaxVotesAllowed = position.MaxVotesAllowed,
+                OrderIndex = position.OrderIndex
+            };
+        }
     }
 
     private async Task HandleSubmit()
     {
-        if (position == null) return;
+        if (editRequest == null) return;
 
-        var result = await PositionService.UpdatePositionAsync(position);
+        var result = await PositionService.UpdatePositionAsync(PositionId, editRequest);
         resultMessage = result.Message;
     }
 }

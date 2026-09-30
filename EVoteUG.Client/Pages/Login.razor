@@ -9,8 +9,8 @@
     <h1 style="text-align: center; font-size: 1.6rem; margin-bottom: 1.5rem;">Student Login</h1>
 
     <div>
-        <label>Email</label>
-        <input type="email" @bind="email" style="width: 100%; box-sizing: border-box;" />
+        <label>Student ID</label>
+        <input @bind="studentId" style="width: 100%; box-sizing: border-box;" />
     </div>
 
     <div>
@@ -31,17 +31,17 @@
 </div>
 
 @code {
-    private string email = string.Empty;
+    private string studentId = string.Empty;
     private string password = string.Empty;
     private string? resultMessage;
 
     private async Task HandleLogin()
     {
-        var result = await StudentService.LoginAsync(email, password);
+        var result = await StudentService.LoginAsync(studentId, password);
 
-        if (result.Success && result.Student != null)
+        if (result.Success && result.User != null)
         {
-            await AuthState.LogInAsync(result.Student);
+            await AuthState.LogInAsync(result.User);
             NavigationManager.NavigateTo("/elections");
         }
         else

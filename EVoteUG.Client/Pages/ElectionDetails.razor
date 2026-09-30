@@ -1,35 +1,34 @@
 @page "/elections/{ElectionId:int}"
-@inject EVoteUG.Client.Services.PositionService PositionService
+@inject EVoteUG.Client.Services.ElectionService ElectionService
 @inject EVoteUG.Client.Services.VoteService VoteService
 @inject EVoteUG.Client.Services.AuthState AuthState
-@using EVoteUG.Shared.Models
 
 <PageTitle>Election Details</PageTitle>
 
 <h1>Positions</h1>
 <p><a href="/elections/@ElectionId/results">View Results</a></p>
 
-@if (!AuthState.IsLoggedIn)
+@if (!AuthState.IsStudent)
 {
-    <p><em>You must <a href="/login">log in</a> to vote. You can still view the positions and candidates below.</em></p>
+    <p><em>You must <a href="/login">log in as a student</a> to vote. You can still view the positions and candidates below.</em></p>
 }
 
-@if (positions == null)
+@if (election == null)
 {
     <p>Loading...</p>
 }
-else if (positions.Count == 0)
+else if (election.Positions.Count == 0)
 {
     <p>No positions found for this election.</p>
 }
 else
 {
-    @foreach (var position in positions)
+    @foreach (var position in election.Positions)
     {
         <div class="card">
             <h3 style="margin-top: 0;">@position.Title</h3>
 
-            @if (position.Candidates == null || position.Candidates.Count == 0)
+            @if (position.Candidates.Count == 0)
             {
                 <p style="color: var(--text-muted);"><em>No candidates yet.</em></p>
             }
@@ -38,7 +37,7 @@ else
                 @foreach (var candidate in position.Candidates)
                 {
                     <div style="background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.5rem;">
-                        @if (AuthState.IsLoggedIn)
+                        @if (AuthState.IsStudent)
                         {
                             <label style="display: flex; align-items: center; gap: 0.5rem; margin: 0; color: var(--text-primary);">
                                 <input type="radio"
@@ -64,7 +63,7 @@ else
         </div>
     }
 
-    @if (AuthState.IsLoggedIn)
+    @if (AuthState.IsStudent)
     {
         <button @onclick="SubmitVotes">Submit My Votes</button>
     }
@@ -79,21 +78,13 @@ else
     [Parameter]
     public int ElectionId { get; set; }
 
-    private List<Position>? positions;
+    private EVoteUG.Client.Services.ElectionResponse? election;
     private Dictionary<int, int> selections = new();
     private string? resultMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        var basicPositions = await PositionService.GetPositionsByElectionAsync(ElectionId);
-
-        positions = new List<Position>();
-        foreach (var pos in basicPositions)
-        {
-            var fullPosition = await PositionService.GetPositionWithCandidatesAsync(pos.Id);
-            if (fullPosition != null)
-                positions.Add(fullPosition);
-        }
+        election = await ElectionService.GetElectionByIdAsync(ElectionId);
     }
 
     private void SelectCandidate(int positionId, int candidateId)
@@ -103,9 +94,9 @@ else
 
     private async Task SubmitVotes()
     {
-        if (!AuthState.IsLoggedIn)
+        if (!AuthState.IsStudent)
         {
-            resultMessage = "You must be logged in to vote.";
+            resultMessage = "You must be logged in as a student to vote.";
             return;
         }
 
@@ -113,9 +104,9 @@ else
 
         foreach (var selection in selections)
         {
-            var vote = new Vote
+            var vote = new EVoteUG.Shared.Models.Vote
             {
-                StudentId = AuthState.Student!.Id,
+                StudentId = int.Parse(AuthState.User!.Identifier),
                 PositionId = selection.Key,
                 CandidateId = selection.Value
             };

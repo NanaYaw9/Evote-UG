@@ -1,7 +1,6 @@
 @page "/admin/positions/create"
 @inject EVoteUG.Client.Services.PositionService PositionService
 @inject EVoteUG.Client.Services.ElectionService ElectionService
-@using EVoteUG.Shared.Models
 
 <PageTitle>Create Position</PageTitle>
 
@@ -14,40 +13,41 @@
     }
     else
     {
-        <EditForm Model="newPosition" OnValidSubmit="HandleSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
+        <div class="card" style="max-width: 500px;">
             <div>
-                <label>Election:</label>
-                <InputSelect @bind-Value="newPosition.ElectionId">
+                <label>Election</label>
+                <select @bind="newPosition.ElectionId" style="width: 100%; box-sizing: border-box;">
                     <option value="0">-- Select an Election --</option>
                     @foreach (var election in elections)
                     {
                         <option value="@election.Id">@election.Title</option>
                     }
-                </InputSelect>
+                </select>
             </div>
 
             <div>
-                <label>Position Title:</label>
-                <InputText @bind-Value="newPosition.Title" />
+                <label>Position Title</label>
+                <input @bind="newPosition.Title" style="width: 100%; box-sizing: border-box;" />
             </div>
 
-            <br />
-            <button type="submit">Create Position</button>
-        </EditForm>
-    }
+            <div>
+                <label>Description</label>
+                <textarea @bind="newPosition.Description" style="width: 100%; box-sizing: border-box;"></textarea>
+            </div>
 
-    @if (!string.IsNullOrEmpty(resultMessage))
-    {
-        <p>@resultMessage</p>
+            <button @onclick="HandleSubmit" style="margin-top: 1.5rem;">Create Position</button>
+
+            @if (!string.IsNullOrEmpty(resultMessage))
+            {
+                <p>@resultMessage</p>
+            }
+        </div>
     }
 </AdminGuard>
 
 @code {
-    private Position newPosition = new();
-    private List<Election>? elections;
+    private EVoteUG.Client.Services.CreatePositionRequest newPosition = new();
+    private List<EVoteUG.Client.Services.ElectionResponse>? elections;
     private string? resultMessage;
 
     protected override async Task OnInitializedAsync()

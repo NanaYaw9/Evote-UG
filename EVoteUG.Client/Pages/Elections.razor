@@ -1,6 +1,5 @@
 @page "/elections"
 @inject EVoteUG.Client.Services.ElectionService ElectionService
-@using EVoteUG.Shared.Models
 
 <PageTitle>Elections</PageTitle>
 
@@ -23,13 +22,13 @@ else
                 <a href="/elections/@election.Id" style="font-size: 1.2rem; font-weight: 600;">
                     @election.Title
                 </a>
-                @if (IsActive(election))
+                @if (election.StatusName == "Active")
                 {
                     <span class="badge badge-active">Active</span>
                 }
                 else
                 {
-                    <span class="badge badge-closed">Closed</span>
+                    <span class="badge badge-closed">@election.StatusName</span>
                 }
             </div>
             <p style="color: var(--text-muted); margin: 0.5rem 0;">@election.Description</p>
@@ -41,15 +40,10 @@ else
 }
 
 @code {
-    private List<Election>? elections;
+    private List<EVoteUG.Client.Services.ElectionResponse>? elections;
 
     protected override async Task OnInitializedAsync()
     {
         elections = await ElectionService.GetElectionsAsync();
-    }
-
-    private bool IsActive(Election election)
-    {
-        return election.IsActive && DateTime.UtcNow <= election.EndDate;
     }
 }

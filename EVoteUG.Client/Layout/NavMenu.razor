@@ -30,7 +30,9 @@
         @if (AuthState.IsLoggedIn)
         {
             <div class="nav-item px-3">
-                <span class="nav-link">Logged in as @AuthState.Student?.FullName</span>
+                <span class="nav-link">
+                    Logged in as @AuthState.User?.FullName (@AuthState.User?.UserType)
+                </span>
             </div>
             <div class="nav-item px-3">
                 <button class="nav-link btn btn-link" @onclick="HandleLogout">Logout</button>
@@ -40,22 +42,9 @@
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="login">
-                    <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Login
+                    <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Student Login
                 </NavLink>
             </div>
-        }
-
-        @if (AuthState.IsAdminLoggedIn)
-        {
-            <div class="nav-item px-3">
-                <span class="nav-link">Admin: @AuthState.Admin?.Username</span>
-            </div>
-            <div class="nav-item px-3">
-                <button class="nav-link btn btn-link" @onclick="HandleAdminLogout">Admin Logout</button>
-            </div>
-        }
-        else
-        {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="admin/login">
                     <span class="bi bi-shield-lock-fill-nav-menu" aria-hidden="true"></span> Admin Login
@@ -78,10 +67,5 @@
     private async Task HandleLogout()
     {
         await AuthState.LogOutAsync();
-    }
-
-    private async Task HandleAdminLogout()
-    {
-        await AuthState.LogOutAdminAsync();
     }
 }

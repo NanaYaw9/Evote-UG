@@ -1,7 +1,6 @@
 @page "/admin"
 @inject EVoteUG.Client.Services.ElectionService ElectionService
 @inject EVoteUG.Client.Services.PositionService PositionService
-@using EVoteUG.Shared.Models
 
 <PageTitle>Admin Dashboard</PageTitle>
 
@@ -65,7 +64,7 @@
 </AdminGuard>
 
 @code {
-    private List<Election>? elections;
+    private List<EVoteUG.Client.Services.ElectionResponse>? elections;
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,6 +74,6 @@
     private int ActiveCount()
     {
         if (elections == null) return 0;
-        return elections.Count(e => e.IsActive && DateTime.UtcNow <= e.EndDate);
+        return elections.Count(e => e.StatusName == "Active");
     }
 }

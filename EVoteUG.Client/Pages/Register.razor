@@ -9,22 +9,52 @@
 
     <div>
         <label>Student ID</label>
-        <input @bind="studentId" style="width: 100%; box-sizing: border-box;" />
+        <input @bind="request.StudentId" style="width: 100%; box-sizing: border-box;" />
     </div>
 
     <div>
         <label>Full Name</label>
-        <input @bind="fullName" style="width: 100%; box-sizing: border-box;" />
+        <input @bind="request.FullName" style="width: 100%; box-sizing: border-box;" />
     </div>
 
     <div>
         <label>Email</label>
-        <input type="email" @bind="email" style="width: 100%; box-sizing: border-box;" />
+        <input type="email" @bind="request.Email" style="width: 100%; box-sizing: border-box;" />
     </div>
 
     <div>
         <label>Password</label>
-        <input type="password" @bind="password" style="width: 100%; box-sizing: border-box;" />
+        <input type="password" @bind="request.Password" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <div>
+        <label>College</label>
+        <input @bind="request.College" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <div>
+        <label>Faculty</label>
+        <input @bind="request.Faculty" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <div>
+        <label>Department</label>
+        <input @bind="request.Department" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <div>
+        <label>Hall of Residence</label>
+        <input @bind="request.HallOfResidence" style="width: 100%; box-sizing: border-box;" />
+    </div>
+
+    <div>
+        <label>Level</label>
+        <select @bind="request.Level" style="width: 100%; box-sizing: border-box;">
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+        </select>
     </div>
 
     <button @onclick="HandleRegister" style="width: 100%; margin-top: 1.5rem;">Register</button>
@@ -36,22 +66,11 @@
 </div>
 
 @code {
-    private string studentId = string.Empty;
-    private string fullName = string.Empty;
-    private string email = string.Empty;
-    private string password = string.Empty;
+    private EVoteUG.Client.Services.StudentRegisterRequest request = new();
     private string? resultMessage;
 
     private async Task HandleRegister()
     {
-        var request = new EVoteUG.Client.Services.RegisterRequest
-        {
-            StudentId = studentId,
-            FullName = fullName,
-            Email = email,
-            Password = password
-        };
-
         var result = await StudentService.RegisterAsync(request);
         resultMessage = result.Message;
 

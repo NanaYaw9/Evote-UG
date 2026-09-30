@@ -7,10 +7,9 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5059/";
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri(apiBaseUrl)
+    BaseAddress = new Uri("http://localhost:5059/")
 });
 
 builder.Services.AddScoped<ElectionService>();
@@ -19,7 +18,7 @@ builder.Services.AddScoped<VoteService>();
 builder.Services.AddScoped<CandidateService>();
 builder.Services.AddScoped<ResultService>();
 builder.Services.AddScoped<StudentService>();
-builder.Services.AddSingleton<AuthState>();
 builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<AuthState>();
 
 await builder.Build().RunAsync();

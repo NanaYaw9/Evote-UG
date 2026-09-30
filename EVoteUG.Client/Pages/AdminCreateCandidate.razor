@@ -2,7 +2,6 @@
 @inject EVoteUG.Client.Services.CandidateService CandidateService
 @inject EVoteUG.Client.Services.PositionService PositionService
 @inject EVoteUG.Client.Services.ElectionService ElectionService
-@using EVoteUG.Shared.Models
 
 <PageTitle>Create Candidate</PageTitle>
 
@@ -15,69 +14,70 @@
     }
     else
     {
-        <div>
-            <label>Election:</label>
-            <select @onchange="OnElectionChanged">
-                <option value="0">-- Select an Election --</option>
-                @foreach (var election in elections)
-                {
-                    <option value="@election.Id">@election.Title</option>
-                }
-            </select>
-        </div>
+        <div class="card" style="max-width: 500px;">
+            <div>
+                <label>Election</label>
+                <select @onchange="OnElectionChanged" style="width: 100%; box-sizing: border-box;">
+                    <option value="0">-- Select an Election --</option>
+                    @foreach (var election in elections)
+                    {
+                        <option value="@election.Id">@election.Title</option>
+                    }
+                </select>
+            </div>
 
-        @if (positions != null && positions.Count > 0)
-        {
-            <EditForm Model="newCandidate" OnValidSubmit="HandleSubmit">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-
+            @if (positions != null && positions.Count > 0)
+            {
                 <div>
-                    <label>Position:</label>
-                    <InputSelect @bind-Value="newCandidate.PositionId">
+                    <label>Position</label>
+                    <select @bind="newCandidate.PositionId" style="width: 100%; box-sizing: border-box;">
                         <option value="0">-- Select a Position --</option>
                         @foreach (var position in positions)
                         {
                             <option value="@position.Id">@position.Title</option>
                         }
-                    </InputSelect>
+                    </select>
                 </div>
 
                 <div>
-                    <label>Full Name:</label>
-                    <InputText @bind-Value="newCandidate.FullName" />
+                    <label>Candidate Student ID</label>
+                    <input @bind="newCandidate.StudentId" style="width: 100%; box-sizing: border-box;" />
                 </div>
 
                 <div>
-                    <label>Bio:</label>
-                    <InputTextArea @bind-Value="newCandidate.Bio" />
+                    <label>Full Name</label>
+                    <input @bind="newCandidate.FullName" style="width: 100%; box-sizing: border-box;" />
                 </div>
 
                 <div>
-                    <label>Photo URL:</label>
-                    <InputText @bind-Value="newCandidate.PhotoUrl" />
+                    <label>Nickname</label>
+                    <input @bind="newCandidate.Nickname" style="width: 100%; box-sizing: border-box;" />
                 </div>
 
-                <br />
-                <button type="submit">Create Candidate</button>
-            </EditForm>
-        }
-        else if (selectedElectionId != 0)
-        {
-            <p><em>No positions found for this election. Create one first.</em></p>
-        }
-    }
+                <div>
+                    <label>Bio</label>
+                    <textarea @bind="newCandidate.Bio" style="width: 100%; box-sizing: border-box;"></textarea>
+                </div>
 
-    @if (!string.IsNullOrEmpty(resultMessage))
-    {
-        <p>@resultMessage</p>
+                <button @onclick="HandleSubmit" style="margin-top: 1.5rem;">Create Candidate</button>
+            }
+            else if (selectedElectionId != 0)
+            {
+                <p><em>No positions found for this election. Create one first.</em></p>
+            }
+
+            @if (!string.IsNullOrEmpty(resultMessage))
+            {
+                <p>@resultMessage</p>
+            }
+        </div>
     }
 </AdminGuard>
 
 @code {
-    private Candidate newCandidate = new();
-    private List<Election>? elections;
-    private List<Position>? positions;
+    private EVoteUG.Client.Services.CreateCandidateRequest newCandidate = new();
+    private List<EVoteUG.Client.Services.ElectionResponse>? elections;
+    private List<EVoteUG.Client.Services.PositionResponse>? positions;
     private int selectedElectionId = 0;
     private string? resultMessage;
 
