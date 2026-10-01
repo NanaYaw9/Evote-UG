@@ -100,13 +100,20 @@ else
             return;
         }
 
+        var studentDbId = AuthState.GetUserDatabaseId();
+        if (studentDbId == null)
+        {
+            resultMessage = "Could not verify your account. Please log out and log in again.";
+            return;
+        }
+
         resultMessage = "Submitting...";
 
         foreach (var selection in selections)
         {
             var vote = new EVoteUG.Shared.Models.Vote
             {
-                StudentId = int.Parse(AuthState.User!.Identifier),
+                StudentId = studentDbId.Value,
                 PositionId = selection.Key,
                 CandidateId = selection.Value
             };

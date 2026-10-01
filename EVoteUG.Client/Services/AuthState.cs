@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.JSInterop;
+using System.Text;
+
 
 namespace EVoteUG.Client.Services;
 
@@ -66,4 +68,35 @@ public class AuthState
     public bool IsAdmin => User?.UserType == "Admin";
 
     private void NotifyStateChanged() => OnChange?.Invoke();
+
+    public int? GetUserDatabaseId()
+{
+    if (User == null || string.IsNullOrEmpty(User.Token))
+        return null;
+
+    try
+    {
+        var parts = User.Token.Split('.');
+        if (parts.Length < 2) return null;
+
+        var payload = parts[1];
+        payload = payload.Replace('-', '+').Replace('_', '/');
+        switch (payload.Length % 4)
+        {
+            case 2: payload += "=="; break;
+            case 3: payload += "="; break;
+        }
+
+        var jsonBytes = Convert.FromBase64String(payload);
+        var json = Encoding.UTF8.GetString(jsonBytes);
+        using var doc = JsonDocument.Parse(json);
+
+        var idClaim = doc.RootElement.GetProperty("nameid").GetString();
+        return int.TryParse(idClaim, out var id) ? id : null;
+    }
+    catch
+    {
+        return null;
+    }
+}
 }

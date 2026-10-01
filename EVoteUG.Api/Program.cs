@@ -16,9 +16,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 2. Configure Database Context (EF Core + SQL Server)
+// 2. Configure Database Context (EF Core + PostgreSQL)
 builder.Services.AddDbContext<EVoteUGDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 3. Configure JWT Authentication & Authorization
 builder.Services.AddJwtAuthentication(builder.Configuration);

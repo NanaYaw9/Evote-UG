@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace EVoteUG.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCleanSchema : Migration
+    public partial class InitialPostgresSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,17 +16,17 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "Admins",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Role = table.Column<int>(type: "int", nullable: false),
-                    MustChangePassword = table.Column<bool>(type: "bit", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    LastLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    FullName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    Email = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<int>(type: "integer", nullable: false),
+                    MustChangePassword = table.Column<bool>(type: "boolean", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    LastLogin = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,19 +37,19 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "Elections",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    AcademicYear = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Scope = table.Column<int>(type: "int", nullable: false),
-                    ScopeTarget = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    AllowRealtimeResults = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    AcademicYear = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Scope = table.Column<int>(type: "integer", nullable: false),
+                    ScopeTarget = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    AllowRealtimeResults = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,20 +60,20 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "Students",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    College = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Faculty = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Department = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    HallOfResidence = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Level = table.Column<int>(type: "int", nullable: false),
-                    IsVerified = table.Column<bool>(type: "bit", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    StudentId = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    FullName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    Email = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    College = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Faculty = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Department = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    HallOfResidence = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Level = table.Column<int>(type: "integer", nullable: false),
+                    IsVerified = table.Column<bool>(type: "boolean", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -83,16 +84,16 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "AuditLogs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AdminId = table.Column<int>(type: "int", nullable: true),
-                    EventType = table.Column<int>(type: "int", nullable: false),
-                    Action = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    EntityType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    EntityId = table.Column<int>(type: "int", nullable: true),
-                    DetailsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IpAddress = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    AdminId = table.Column<int>(type: "integer", nullable: true),
+                    EventType = table.Column<int>(type: "integer", nullable: false),
+                    Action = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    EntityType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    EntityId = table.Column<int>(type: "integer", nullable: true),
+                    DetailsJson = table.Column<string>(type: "text", nullable: false),
+                    IpAddress = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,13 +110,13 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "Positions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    MaxVotesAllowed = table.Column<int>(type: "int", nullable: false),
-                    OrderIndex = table.Column<int>(type: "int", nullable: false),
-                    ElectionId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    MaxVotesAllowed = table.Column<int>(type: "integer", nullable: false),
+                    OrderIndex = table.Column<int>(type: "integer", nullable: false),
+                    ElectionId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -132,12 +133,12 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "VoteReceipts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentId = table.Column<int>(type: "int", nullable: false),
-                    ElectionId = table.Column<int>(type: "int", nullable: false),
-                    ReceiptHash = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
-                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    StudentId = table.Column<int>(type: "integer", nullable: false),
+                    ElectionId = table.Column<int>(type: "integer", nullable: false),
+                    ReceiptHash = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    IssuedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -160,13 +161,13 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "VoterParticipations",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentId = table.Column<int>(type: "int", nullable: false),
-                    ElectionId = table.Column<int>(type: "int", nullable: false),
-                    CastAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IpAddress = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false),
-                    DeviceInfo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    StudentId = table.Column<int>(type: "integer", nullable: false),
+                    ElectionId = table.Column<int>(type: "integer", nullable: false),
+                    CastAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IpAddress = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: false),
+                    DeviceInfo = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -189,18 +190,18 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "Candidates",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Nickname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Bio = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ManifestoUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    PhotoUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    RunningMateName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    RunningMatePhotoUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    PositionId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    StudentId = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    FullName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    Nickname = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Bio = table.Column<string>(type: "text", nullable: false),
+                    ManifestoUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    PhotoUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    RunningMateName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    RunningMatePhotoUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    PositionId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -217,13 +218,13 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "CastVoteRecords",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ElectionId = table.Column<int>(type: "int", nullable: false),
-                    PositionId = table.Column<int>(type: "int", nullable: false),
-                    CandidateId = table.Column<int>(type: "int", nullable: false),
-                    CastTimestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    BallotBatchId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ElectionId = table.Column<int>(type: "integer", nullable: false),
+                    PositionId = table.Column<int>(type: "integer", nullable: false),
+                    CandidateId = table.Column<int>(type: "integer", nullable: false),
+                    CastTimestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    BallotBatchId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -246,12 +247,12 @@ namespace EVoteUG.Infrastructure.Migrations
                 name: "Votes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentId = table.Column<int>(type: "int", nullable: false),
-                    CandidateId = table.Column<int>(type: "int", nullable: false),
-                    PositionId = table.Column<int>(type: "int", nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    StudentId = table.Column<int>(type: "integer", nullable: false),
+                    CandidateId = table.Column<int>(type: "integer", nullable: false),
+                    PositionId = table.Column<int>(type: "integer", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
