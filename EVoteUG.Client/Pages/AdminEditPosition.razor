@@ -1,0 +1,66 @@
+@page "/admin/positions/edit/{PositionId:int}"
+@inject EVoteUG.Client.Services.PositionService PositionService
+
+<PageTitle>Edit Position</PageTitle>
+
+<AdminGuard>
+    <h1>Edit Position</h1>
+
+    @if (editRequest == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <div class="card" style="max-width: 500px;">
+            <div>
+                <label>Position Title</label>
+                <input @bind="editRequest.Title" style="width: 100%; box-sizing: border-box;" />
+            </div>
+
+            <div>
+                <label>Description</label>
+                <textarea @bind="editRequest.Description" style="width: 100%; box-sizing: border-box;"></textarea>
+            </div>
+
+            <button @onclick="HandleSubmit" style="margin-top: 1.5rem;">Save Changes</button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(resultMessage))
+    {
+        <p>@resultMessage</p>
+    }
+</AdminGuard>
+
+@code {
+    [Parameter]
+    public int PositionId { get; set; }
+
+    private EVoteUG.Client.Services.CreatePositionRequest? editRequest;
+    private string? resultMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var position = await PositionService.GetPositionByIdAsync(PositionId);
+        if (position != null)
+        {
+            editRequest = new EVoteUG.Client.Services.CreatePositionRequest
+            {
+                ElectionId = position.ElectionId,
+                Title = position.Title,
+                Description = position.Description,
+                MaxVotesAllowed = position.MaxVotesAllowed,
+                OrderIndex = position.OrderIndex
+            };
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (editRequest == null) return;
+
+        var result = await PositionService.UpdatePositionAsync(PositionId, editRequest);
+        resultMessage = result.Message;
+    }
+}
