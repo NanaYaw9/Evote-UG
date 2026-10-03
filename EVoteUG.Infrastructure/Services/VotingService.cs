@@ -323,31 +323,42 @@ public class VotingService : IVotingService
     }
 
     public async Task<ApiResponse<Vote>> CastDirectVoteAsync(Vote vote)
-    {
-        if (vote == null)
-            return ApiResponse<Vote>.Fail("Vote payload is empty.");
+{
+    if (vote == null)
+        return ApiResponse<Vote>.Fail("Vote payload is empty.");
 
-        var studentExists = await _context.Students.AnyAsync(s => s.Id == vote.StudentId);
-        if (!studentExists)
-            return ApiResponse<Vote>.Fail("Student not found.");
+    var studentExists = await _context.Students.AnyAsync(s => s.Id == vote.StudentId);
+    if (!studentExists)
+        return ApiResponse<Vote>.Fail("Student not found.");
 
-        var candidate = await _context.Candidates.FirstOrDefaultAsync(c => c.Id == vote.CandidateId);
-        if (candidate == null)
-            return ApiResponse<Vote>.Fail("Candidate not found.");
+    var candidate = await _context.Candidates.FirstOrDefaultAsync(c => c.Id == vote.CandidateId);
+    if (candidate == null)
+        return ApiResponse<Vote>.Fail("Candidate not found.");
 
-        if (candidate.PositionId != vote.PositionId)
-            return ApiResponse<Vote>.Fail("This candidate does not belong to the specified position.");
+    if (candidate.PositionId != vote.PositionId)
+        return ApiResponse<Vote>.Fail("This candidate does not belong to the specified position.");
 
-        var alreadyVoted = await _context.Votes
-            .AnyAsync(v => v.StudentId == vote.StudentId && v.PositionId == vote.PositionId);
+    var position = await _context.Positions.FirstOrDefaultAsync(p => p.Id == vote.PositionId);
+    if (position == null)
+        return ApiResponse<Vote>.Fail("Position not found.");
 
-        if (alreadyVoted)
-            return ApiResponse<Vote>.Fail("You have already voted for this position.");
+    var election = await _context.Elections.FirstOrDefaultAsync(e => e.Id == position.ElectionId);
+    if (election == null)
+        return ApiResponse<Vote>.Fail("Election not found.");
 
-        vote.Timestamp = DateTime.UtcNow;
-        _context.Votes.Add(vote);
-        await _context.SaveChangesAsync();
+    if (election.Status != ElectionStatus.Active)
+        return ApiResponse<Vote>.Fail($"This election is not open for voting (current status: {election.Status}).");
 
-        return ApiResponse<Vote>.Ok(vote, "Vote cast successfully.");
-    }
+    var alreadyVoted = await _context.Votes
+        .AnyAsync(v => v.StudentId == vote.StudentId && v.PositionId == vote.PositionId);
+
+    if (alreadyVoted)
+        return ApiResponse<Vote>.Fail("You have already voted for this position.");
+
+    vote.Timestamp = DateTime.UtcNow;
+    _context.Votes.Add(vote);
+    await _context.SaveChangesAsync();
+
+    return ApiResponse<Vote>.Ok(vote, "Vote cast successfully.");
+}
 }
