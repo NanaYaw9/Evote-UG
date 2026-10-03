@@ -10,7 +10,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
     {
-        policy.WithOrigins("http://localhost:5043", "https://localhost:7001", "https://entries-stevens-sponsors-packed.trycloudflare.com")
+        policy.WithOrigins("http://localhost:5043", "https://localhost:7001")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -48,6 +48,7 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "swagger";
 });
 
+app.MapGet("/", () => Results.Redirect("/swagger"));
 // Automatically apply EF Core migrations and seed data
 try
 {
