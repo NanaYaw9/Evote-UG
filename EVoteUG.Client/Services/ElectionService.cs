@@ -63,4 +63,26 @@ public class ElectionService
 
         return (false, body?.Message ?? "Failed to create election.");
     }
+
+    public async Task<(bool Success, string Message)> UpdateElectionStatusAsync(int id, int newStatus)
+    {
+        var response = await _http.PatchAsJsonAsync($"api/elections/{id}/status", new { NewStatus = newStatus });
+        var body = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
+
+        if (response.IsSuccessStatusCode && body?.Success == true)
+            return (true, "Election status updated!");
+
+        return (false, body?.Message ?? "Failed to update status.");
+    }
+
+    public async Task<(bool Success, string Message)> DeleteElectionAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/elections/{id}");
+        var body = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
+
+        if (response.IsSuccessStatusCode && body?.Success == true)
+            return (true, "Election deleted successfully!");
+
+        return (false, body?.Message ?? "Failed to delete election.");
+    }
 }
