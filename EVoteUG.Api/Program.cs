@@ -10,7 +10,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
     {
-        policy.WithOrigins("http://localhost:5043", "https://localhost:7001")
+        policy.WithOrigins("http://localhost:5043", "https://localhost:7001", "https://evote-ug.netlify.app")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
