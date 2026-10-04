@@ -165,29 +165,39 @@ public class ElectionService : IElectionService
     }
 
     public async Task<ApiResponse<bool>> DeleteElectionAsync(int id, int adminId)
+{
+    var election = await _context.Elections
+        .Include(e => e.VoterParticipations)
+        .Include(e => e.Positions)
+            .ThenInclude(p => p.Candidates)
+        .FirstOrDefaultAsync(e => e.Id == id);
+
+    if (election == null)
+        return ApiResponse<bool>.Fail($"Election with ID {id} was not found.");
+
+    if (election.VoterParticipations.Count > 0)
+        return ApiResponse<bool>.Fail("Cannot delete an election that has recorded voter participation. Archive or set status to Concluded instead.");
+
+    // Manually remove Candidates and Positions first, since Candidate -> Position
+    // uses ON DELETE RESTRICT, so it won't cascade automatically from the Election.
+    foreach (var position in election.Positions)
     {
-        var election = await _context.Elections
-            .Include(e => e.VoterParticipations)
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-        if (election == null)
-            return ApiResponse<bool>.Fail($"Election with ID {id} was not found.");
-
-        if (election.VoterParticipations.Count > 0)
-            return ApiResponse<bool>.Fail("Cannot delete an election that has recorded voter participation. Archive or set status to Concluded instead.");
-
-        _context.Elections.Remove(election);
-        await _context.SaveChangesAsync();
-
-        await _auditService.LogActionAsync(
-            adminId,
-            AuditEventType.ElectionStatusChanged,
-            $"Deleted draft election #{id}: '{election.Title}'",
-            "Election",
-            id);
-
-        return ApiResponse<bool>.Ok(true, "Election deleted successfully.");
+        _context.Candidates.RemoveRange(position.Candidates);
     }
+    _context.Positions.RemoveRange(election.Positions);
+
+    _context.Elections.Remove(election);
+    await _context.SaveChangesAsync();
+
+    await _auditService.LogActionAsync(
+        adminId,
+        AuditEventType.ElectionStatusChanged,
+        $"Deleted draft election #{id}: '{election.Title}'",
+        "Election",
+        id);
+
+    return ApiResponse<bool>.Ok(true, "Election deleted successfully.");
+}
 
     private static ElectionResponseDto MapToResponseDto(Election election)
     {

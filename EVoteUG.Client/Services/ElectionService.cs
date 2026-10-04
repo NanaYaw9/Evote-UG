@@ -65,24 +65,38 @@ public class ElectionService
     }
 
     public async Task<(bool Success, string Message)> UpdateElectionStatusAsync(int id, int newStatus)
-    {
-        var response = await _http.PatchAsJsonAsync($"api/elections/{id}/status", new { NewStatus = newStatus });
-        var body = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
+{
+    var response = await _http.PatchAsJsonAsync($"api/elections/{id}/status", new { NewStatus = newStatus });
 
+    try
+    {
+        var body = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
         if (response.IsSuccessStatusCode && body?.Success == true)
             return (true, "Election status updated!");
 
         return (false, body?.Message ?? "Failed to update status.");
     }
+    catch
+    {
+        return (false, $"Failed to update status (server error {(int)response.StatusCode}).");
+    }
+}
 
     public async Task<(bool Success, string Message)> DeleteElectionAsync(int id)
-    {
-        var response = await _http.DeleteAsync($"api/elections/{id}");
-        var body = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
+{
+    var response = await _http.DeleteAsync($"api/elections/{id}");
 
+    try
+    {
+        var body = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
         if (response.IsSuccessStatusCode && body?.Success == true)
             return (true, "Election deleted successfully!");
 
         return (false, body?.Message ?? "Failed to delete election.");
     }
+    catch
+    {
+        return (false, $"Failed to delete election (server error {(int)response.StatusCode}).");
+    }
+}
 }
