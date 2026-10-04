@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "EVoteUG.Client",
   "resources": {
-    "hash": "sha256-8LxKHAmOazS1OtYr0eYCd1fFm7Gu4VN2YIVKBXU/Bk4=",
+    "hash": "sha256-riIuRR3reker0OVnoLYB/hYiBfQ2eD6sTJCucTQiLfU=",
     "jsModuleNative": {
       "dotnet.native.8.0.2.q4zb0hn33u.js": "sha256-gPMK16QWoJSTxorlZJqcVtbBRTniIQWlLsJN2O4cJHg="
     },
@@ -17,8 +17,8 @@
       "icudt_no_CJK.dat": "sha256-L7sV7NEYP37/Qr2FPCePo5cJqRgTXRwGHuwF5Q+0Nfs="
     },
     "assembly": {
-      "EVoteUG.Client.wasm": "sha256-T9ZfOxIKfuCGCjloVzQG9M185Qx/mZS5L2uW20UEBRI=",
-      "EVoteUG.Shared.wasm": "sha256-P+PEciVFt091HLhSnpExYCDGhslOmgXWF3dRDXkbaXM=",
+      "EVoteUG.Client.wasm": "sha256-fHFK/up0sweGGtkju0JLh0R0iKsQs9WxHUOUkJINezM=",
+      "EVoteUG.Shared.wasm": "sha256-b/pUQmxyIVX19D4hrlXVn+EyiZLsTjTAJvMwBBCQi44=",
       "Microsoft.AspNetCore.Components.wasm": "sha256-9gLmIBPIsfCl11ec44h6bbRgdjwzbNH7IHIKbWBOTpo=",
       "Microsoft.AspNetCore.Components.Web.wasm": "sha256-7KkqwwQtcN+NHevIKYhJ2gLZJa3f0aShCl2ldtegyXw=",
       "Microsoft.AspNetCore.Components.WebAssembly.wasm": "sha256-LETQRDLqfci4W9tcUopKqMXh39DGLq6U4AdKYnvGaLU=",
