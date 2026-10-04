@@ -1,0 +1,68 @@
+@page "/elections/{ElectionId:int}/results"
+@inject EVoteUG.Client.Services.PositionService PositionService
+@inject EVoteUG.Client.Services.ResultService ResultService
+
+<PageTitle>Election Results</PageTitle>
+
+<h1>Results</h1>
+
+@if (positions == null)
+{
+    <p>Loading...</p>
+}
+else if (positions.Count == 0)
+{
+    <p>No positions found for this election.</p>
+}
+else
+{
+    @foreach (var position in positions)
+    {
+        <div class="card">
+            <h3 style="margin-top: 0;">@position.Title</h3>
+
+            @if (resultsByPosition.TryGetValue(position.Id, out var results) && results.Count > 0)
+            {
+                var maxVotes = results.Max(r => r.VoteCount);
+
+                @foreach (var result in results)
+                {
+                    var percent = maxVotes > 0 ? (double)result.VoteCount / maxVotes * 100 : 0;
+
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span>@result.CandidateName</span>
+                            <span style="color: var(--text-muted);">@result.VoteCount vote(s)</span>
+                        </div>
+                        <div style="background-color: var(--bg-main); border-radius: 999px; height: 0.6rem; overflow: hidden;">
+                            <div style="background-color: var(--accent-primary); height: 100%; width: @percent.ToString("0")%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p style="color: var(--text-muted);"><em>No candidates or votes yet.</em></p>
+            }
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public int ElectionId { get; set; }
+
+    private List<EVoteUG.Client.Services.PositionResponse>? positions;
+    private Dictionary<int, List<EVoteUG.Client.Services.ResultItem>> resultsByPosition = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        positions = await PositionService.GetPositionsByElectionAsync(ElectionId);
+
+        foreach (var position in positions)
+        {
+            var results = await ResultService.GetResultsAsync(position.Id);
+            resultsByPosition[position.Id] = results;
+        }
+    }
+}
