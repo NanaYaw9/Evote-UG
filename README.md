@@ -148,7 +148,7 @@ The app will be available at `http://localhost:5043`.
 | Juliet Adoma Minta | 22058472 | Presentation & Demo Coordinator |
 | Mabel Awuku Addae | 22014655 | Frontend Developer |
 | Stephen Edem Kwame Doelawson | 22045257 | Backend Developer |
-| Edwine Nkum Boateng | 22061303 | Authentication & Security |
+
 
 ---
 
