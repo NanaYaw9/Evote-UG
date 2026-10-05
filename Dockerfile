@@ -2,18 +2,23 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy everything (simplest approach for a multi-project solution)
+# Copy everything
 COPY . .
 
-# Restore and publish the Api project (this pulls in Core, Infrastructure, Shared automatically via project references)
+# Publish the Client (Blazor WASM) first
+RUN dotnet publish EVoteUG.Client/EVoteUG.Client.csproj -c Release -o /app/client-publish
+
+# Publish the Api
 RUN dotnet publish EVoteUG.Api/EVoteUG.Api.csproj -c Release -o /app/publish
 
-# Runtime stage (smaller image, no SDK needed to just run the app)
+# Copy the Client's compiled static files into the Api's wwwroot
+RUN mkdir -p /app/publish/wwwroot && cp -r /app/client-publish/wwwroot/. /app/publish/wwwroot/
+
+# Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Render provides the PORT environment variable; ASP.NET Core needs to listen on it
 ENV ASPNETCORE_URLS=http://+:10000
 EXPOSE 10000
 

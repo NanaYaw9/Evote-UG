@@ -48,7 +48,7 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "swagger";
 });
 
-app.MapGet("/", () => Results.Redirect("/swagger"));
+
 // Automatically apply EF Core migrations and seed data
 try
 {
@@ -66,9 +66,13 @@ app.UseCors("AllowBlazorClient");
 
 app.UseHttpsRedirection();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();
